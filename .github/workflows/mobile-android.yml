@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload mobile report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: android-report-api-${{ matrix.api-level }}
           path: reports/mobile
