@@ -15,10 +15,6 @@ const escapeQuotes = (value: string): string => value.replace(/"/g, '\\"');
 export const byText = (text: string): string =>
   driver.isAndroid
     ? `android=new UiSelector().text("${escapeQuotes(text)}")`
-    : `-ios predicate string:label == "${escapeQuotes(text)}" OR value == "${escapeQuotes(text)}"`;
-
-/** Element whose visible text contains `text`. */
-export const byTextContaining = (text: string): string =>
-  driver.isAndroid
-    ? `android=new UiSelector().textContains("${escapeQuotes(text)}")`
-    : `-ios predicate string:label CONTAINS "${escapeQuotes(text)}"`;
+    : // Containers on iOS expose their children's text as their own label, so only match
+      // the text element itself (selectors must resolve to exactly one element).
+      `-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "${escapeQuotes(text)}"`;
