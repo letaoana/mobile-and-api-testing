@@ -1,8 +1,10 @@
+import { relaunchApp } from '../helpers/app.ts';
 import SwipeScreen, { CAROUSEL_SLIDES } from '../screens/SwipeScreen.ts';
 import TabBar from '../screens/components/TabBar.ts';
 
 describe('Swipe', () => {
   beforeEach(async () => {
+    await relaunchApp();
     await TabBar.waitForTabBarShown();
     await TabBar.open('Swipe');
     await SwipeScreen.waitForIsShown();

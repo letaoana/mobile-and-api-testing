@@ -52,12 +52,18 @@ class SwipeScreen extends BaseScreen {
 
   async swipeCarousel(direction: 'left' | 'right'): Promise<void> {
     const before = await this.getVisibleSlideTitle();
-    await driver.swipe({
-      direction,
-      scrollableElement: await this.carousel.getElement(),
-      percent: 0.8,
-      duration: 600,
-    });
+    const carousel = await this.carousel.getElement();
+    if (driver.isAndroid) {
+      // The carousel listens through react-native-gesture-handler, which reliably
+      // receives UiAutomator2's native swipe but not a synthesised W3C pointer swipe.
+      await driver.execute('mobile: swipeGesture', {
+        elementId: carousel.elementId,
+        direction,
+        percent: 0.75,
+      });
+    } else {
+      await driver.swipe({ direction, scrollableElement: carousel, percent: 0.8, duration: 600 });
+    }
     // Wait until the carousel has settled on a different slide.
     await driver.waitUntil(async () => (await this.getVisibleSlideTitle()) !== before, {
       timeoutMsg: `Carousel did not move ${direction} from "${before}"`,

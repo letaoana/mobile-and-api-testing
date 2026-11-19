@@ -1,9 +1,11 @@
+import { relaunchApp } from '../helpers/app.ts';
 import FormsScreen, { type DropdownOption } from '../screens/FormsScreen.ts';
 import NativeAlert from '../screens/components/NativeAlert.ts';
 import TabBar from '../screens/components/TabBar.ts';
 
 describe('Forms', () => {
   beforeEach(async () => {
+    await relaunchApp();
     await TabBar.waitForTabBarShown();
     await TabBar.open('Forms');
     await FormsScreen.waitForIsShown();

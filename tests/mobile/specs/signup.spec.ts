@@ -1,10 +1,12 @@
 import { newUser } from '../data/users.ts';
+import { relaunchApp } from '../helpers/app.ts';
 import LoginScreen, { LOGIN_ERRORS } from '../screens/LoginScreen.ts';
 import NativeAlert from '../screens/components/NativeAlert.ts';
 import TabBar from '../screens/components/TabBar.ts';
 
 describe('Sign up', () => {
   beforeEach(async () => {
+    await relaunchApp();
     await TabBar.waitForTabBarShown();
     await TabBar.open('Login');
     await LoginScreen.waitForIsShown();
