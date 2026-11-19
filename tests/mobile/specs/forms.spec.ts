@@ -9,6 +9,10 @@ describe('Forms', () => {
     await FormsScreen.waitForIsShown();
   });
 
+  afterEach(async () => {
+    await NativeAlert.dismissIfShown();
+  });
+
   it('fills in every field, submits the form and shows the result', async () => {
     const text = 'Hello from the test suite';
     const option: DropdownOption = 'Appium is awesome';

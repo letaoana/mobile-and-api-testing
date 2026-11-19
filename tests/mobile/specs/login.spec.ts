@@ -19,6 +19,10 @@ describe('Login', () => {
     await LoginScreen.waitForIsShown();
   });
 
+  afterEach(async () => {
+    await NativeAlert.dismissIfShown();
+  });
+
   it('logs in with valid credentials', async () => {
     await LoginScreen.login(user);
 

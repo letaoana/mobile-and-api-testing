@@ -1,7 +1,11 @@
 name: Mobile tests - Android
 
+# Device runs are slow and costly, so they run for pull requests, on main and on demand.
 on:
   push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
     paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
@@ -55,6 +59,10 @@ jobs:
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: npm run test:android
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
 
       - name: Upload mobile report
         if: always()

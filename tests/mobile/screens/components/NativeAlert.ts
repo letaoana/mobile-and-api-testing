@@ -1,11 +1,12 @@
 /**
  * Wraps the platform's native alert dialog (Android AlertDialog / iOS UIAlertController).
  *
- * React Native renders either the framework or the AppCompat AlertDialog on Android,
- * so resource ids are matched on their suffix (`android:id/…` or `<package>:id/…`).
+ * React Native renders an AppCompat AlertDialog on Android and replaces the title with
+ * its own view (`alert_title`), so resource ids are matched on their suffix and both
+ * the framework and React Native title ids are accepted.
  */
-const androidId = (id: string): string =>
-  `android=new UiSelector().resourceIdMatches(".*:id/${id}$")`;
+const androidId = (idPattern: string): string =>
+  `android=new UiSelector().resourceIdMatches(".*:id/(${idPattern})$")`;
 
 class NativeAlert {
   private get container() {
@@ -15,7 +16,7 @@ class NativeAlert {
   }
 
   private get androidTitle() {
-    return $(androidId('alertTitle'));
+    return $(androidId('alert_title|alertTitle'));
   }
 
   private get androidMessage() {
@@ -57,6 +58,13 @@ class NativeAlert {
     // XCUITest returns "<title>\n<message>" for the alert text.
     const [title = '', ...rest] = (await driver.getAlertText()).split('\n');
     return { title, message: rest.join('\n') };
+  }
+
+  /** Closes an alert left open by a failed step so the next test starts clean. */
+  async dismissIfShown(): Promise<void> {
+    if (await this.container.isDisplayed().catch(() => false)) {
+      await this.tapButton('OK').catch(() => driver.back());
+    }
   }
 
   async tapButton(label: string): Promise<void> {

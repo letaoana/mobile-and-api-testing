@@ -95,6 +95,11 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
       await driver
         .saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`))
         .catch((error: Error) => console.warn(`Screenshot failed: ${error.message}`));
+      // The UI hierarchy at the moment of failure shows which locator no longer matches.
+      await driver
+        .getPageSource()
+        .then((source) => writeFile(join(ARTIFACTS_DIR, `${name}.xml`), source))
+        .catch((error: Error) => console.warn(`Page source failed: ${error.message}`));
     }
 
     try {

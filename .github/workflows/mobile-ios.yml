@@ -1,7 +1,11 @@
 name: Mobile tests - iOS
 
+# Device runs are slow and costly, so they run for pull requests, on main and on demand.
 on:
   push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
     paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
@@ -48,6 +52,10 @@ jobs:
 
       - name: Run tests on the simulator
         run: npm run test:ios
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
 
       - name: Upload mobile report
         if: always()

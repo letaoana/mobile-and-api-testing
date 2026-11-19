@@ -10,6 +10,10 @@ describe('Sign up', () => {
     await LoginScreen.waitForIsShown();
   });
 
+  afterEach(async () => {
+    await NativeAlert.dismissIfShown();
+  });
+
   it('creates a new account with a valid email and matching passwords', async () => {
     await LoginScreen.signUp(newUser());
 

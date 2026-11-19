@@ -64,9 +64,9 @@ class SwipeScreen extends BaseScreen {
     });
   }
 
-  /** Swipes up the page until the hidden logo is visible. */
+  /** Swipes up the page until the hidden logo and the text below it are visible. */
   async scrollToHiddenLogo(): Promise<void> {
-    await this.hiddenLogo.scrollIntoView({
+    await this.hiddenMessage.scrollIntoView({
       direction: 'up',
       maxScrolls: 10,
       scrollableElement: await this.root.getElement(),
