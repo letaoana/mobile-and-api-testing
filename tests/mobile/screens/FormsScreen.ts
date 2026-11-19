@@ -1,4 +1,3 @@
-import { touchCentreOf } from '../helpers/gestures.ts';
 import { hideKeyboardIfShown } from '../helpers/keyboard.ts';
 import { byA11yId, byText } from '../helpers/selectors.ts';
 import BaseScreen from './BaseScreen.ts';
@@ -77,9 +76,12 @@ class FormsScreen extends BaseScreen {
       await this.tap($(byText(option)));
       return;
     }
-    // On iOS the picker wrapper is not accessible and only reacts to a real touch.
-    await this.dropdown.waitForDisplayed();
-    await touchCentreOf(await this.dropdown.getElement());
+    // On iOS the picker wrapper is not accessible and ignores element clicks, so tap its
+    // text field through XCUITest's native coordinate tap.
+    await this.dropdownValue.waitForDisplayed();
+    await driver.execute('mobile: tap', {
+      elementId: (await this.dropdownValue.getElement()).elementId,
+    });
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
     await wheel.setValue(option);

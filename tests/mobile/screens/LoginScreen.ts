@@ -81,7 +81,7 @@ class LoginScreen extends BaseScreen {
     }
     await input.clearValue();
     // Type into the focused field without tapping it again (which would reopen the sheet).
-    await driver.execute('mobile: keys', { keys: [value] });
+    await driver.execute('mobile: keys', { keys: [...value] });
   }
 
   private get strongPasswordSheet() {
