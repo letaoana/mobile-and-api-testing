@@ -13,12 +13,16 @@ HTML and JUnit reports as the `api-report` artifact.
 
 ## Mobile tests (WebdriverIO + Appium)
 
+| File                                                                         | What it shows                                                                                                  |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [`mobile/android-emulator-ci-run.txt`](mobile/android-emulator-ci-run.txt) | Full `npm run test:android` output from CI on an Android 14 emulator: 5/5 spec files, 10/10 tests passed |
+
 Every run of the **Mobile tests - Android** and **Mobile tests - iOS** workflows uploads its full
 output as a build artifact (`android-report-api-34`, `ios-report`):
 
-- `junit/` – JUnit XML per spec file
-- `wdio-appium.log` – Appium server log
-- `artifacts/` – an MP4 screen recording of every test (`RECORD_VIDEO=true` on CI), plus a
-  screenshot of any failure
+- `junit/`: JUnit XML per spec file
+- `wdio-appium.log`: Appium server log
+- `artifacts/`: an MP4 screen recording of every test (`RECORD_VIDEO=true` on CI), plus a
+  screenshot and the page source of any failure
 
 Local runs against a physical Android device write the same files to `reports/mobile/`.

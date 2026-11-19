@@ -1,0 +1,73 @@
+Mobile tests - Android | GitHub Actions run 44576589491 | Android 14 (API 34) emulator, Pixel 6 profile
+https://github.com/letaoana/mobile-and-api-testing/actions/runs/44576589491
+
+> wdio run config/wdio.android.conf.ts
+
+
+Execution of 5 workers started at 2026-11-19T17:26:22.663Z
+
+[0-0] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-0] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-1] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-2] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-2] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-3] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-3] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-4] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+[0-4] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[android.wdio.native.app.apk Android #0-0] Running: android.wdio.native.app.apk on Android
+[android.wdio.native.app.apk Android #0-0] Session ID: cb2047e5-4cb6-44ee-9b26-21afc330e29c
+[android.wdio.native.app.apk Android #0-0]
+[android.wdio.native.app.apk Android #0-0] » tests/mobile/specs/drag.spec.ts
+[android.wdio.native.app.apk Android #0-0] Drag and drop
+[android.wdio.native.app.apk Android #0-0]    ✓ completes the puzzle and can start over
+[android.wdio.native.app.apk Android #0-0]
+[android.wdio.native.app.apk Android #0-0] 1 passing (2m 1.2s)
+------------------------------------------------------------------
+[android.wdio.native.app.apk Android #0-1] Running: android.wdio.native.app.apk on Android
+[android.wdio.native.app.apk Android #0-1] Session ID: 4dbcca48-9da7-4328-b7da-cff056a60365
+[android.wdio.native.app.apk Android #0-1]
+[android.wdio.native.app.apk Android #0-1] » tests/mobile/specs/forms.spec.ts
+[android.wdio.native.app.apk Android #0-1] Forms
+[android.wdio.native.app.apk Android #0-1]    ✓ fills in every field, submits the form and shows the result
+[android.wdio.native.app.apk Android #0-1]    ✓ turns the switch back off on a second tap
+[android.wdio.native.app.apk Android #0-1]
+[android.wdio.native.app.apk Android #0-1] 2 passing (1m 20.3s)
+------------------------------------------------------------------
+[android.wdio.native.app.apk Android #0-2] Running: android.wdio.native.app.apk on Android
+[android.wdio.native.app.apk Android #0-2] Session ID: be18b229-6cd6-46fc-a629-eafee185d852
+[android.wdio.native.app.apk Android #0-2]
+[android.wdio.native.app.apk Android #0-2] » tests/mobile/specs/login.spec.ts
+[android.wdio.native.app.apk Android #0-2] Login
+[android.wdio.native.app.apk Android #0-2]    ✓ logs in with valid credentials
+[android.wdio.native.app.apk Android #0-2]    ✓ shows an error message when the password is wrong
+[android.wdio.native.app.apk Android #0-2]    ✓ shows an error message when the email address is invalid
+[android.wdio.native.app.apk Android #0-2]
+[android.wdio.native.app.apk Android #0-2] 3 passing (1m 19.4s)
+------------------------------------------------------------------
+[android.wdio.native.app.apk Android #0-3] Running: android.wdio.native.app.apk on Android
+[android.wdio.native.app.apk Android #0-3] Session ID: 7978c7fc-dbf9-42f2-af4b-40ace0d6dee7
+[android.wdio.native.app.apk Android #0-3]
+[android.wdio.native.app.apk Android #0-3] » tests/mobile/specs/signup.spec.ts
+[android.wdio.native.app.apk Android #0-3] Sign up
+[android.wdio.native.app.apk Android #0-3]    ✓ creates a new account with a valid email and matching passwords
+[android.wdio.native.app.apk Android #0-3]    ✓ rejects the sign up when the passwords do not match
+[android.wdio.native.app.apk Android #0-3]
+[android.wdio.native.app.apk Android #0-3] 2 passing (49.1s)
+------------------------------------------------------------------
+[android.wdio.native.app.apk Android #0-4] Running: android.wdio.native.app.apk on Android
+[android.wdio.native.app.apk Android #0-4] Session ID: 915e21f8-8ed9-469b-a55b-e48af5ba8146
+[android.wdio.native.app.apk Android #0-4]
+[android.wdio.native.app.apk Android #0-4] » tests/mobile/specs/swipe.spec.ts
+[android.wdio.native.app.apk Android #0-4] Swipe
+[android.wdio.native.app.apk Android #0-4]    ✓ moves the carousel to the next and previous slide
+[android.wdio.native.app.apk Android #0-4]    ✓ reveals the hidden content after scrolling down
+[android.wdio.native.app.apk Android #0-4]
+[android.wdio.native.app.apk Android #0-4] 2 passing (1m 2.9s)
+
+
+Spec Files:	 5 passed, 5 total (100% completed) in 00:08:32  
