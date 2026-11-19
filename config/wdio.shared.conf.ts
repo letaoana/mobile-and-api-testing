@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { envFlag, isCI } from './env.ts';
 
@@ -74,23 +75,35 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
   },
 
   async beforeTest() {
-    await driver.startRecordingScreen();
+    try {
+      await driver.startRecordingScreen();
+    } catch (error) {
+      // Recording is evidence only; a missing recorder (e.g. ffmpeg on iOS) must not fail tests.
+      console.warn(`Screen recording unavailable: ${(error as Error).message}`);
+    }
   },
 
   /**
    * Keeps evidence for every failure (screenshot + screen recording) and, when
-   * RECORD_VIDEO=true, a recording of passing tests as well.
+   * RECORD_VIDEO=true, a recording of passing tests as well. The screenshot is
+   * taken first so it survives even if the recording cannot be retrieved.
    */
   async afterTest(test, _context, { passed }) {
     const name = `${toFileName(test.parent)}--${toFileName(test.title)}`;
-    const video = await driver.stopRecordingScreen();
 
     if (!passed) {
-      await driver.saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`));
+      await driver
+        .saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`))
+        .catch((error: Error) => console.warn(`Screenshot failed: ${error.message}`));
     }
-    if (!passed || recordEveryTest) {
-      const { writeFile } = await import('node:fs/promises');
-      await writeFile(join(ARTIFACTS_DIR, `${name}.mp4`), video, 'base64');
+
+    try {
+      const video = await driver.stopRecordingScreen();
+      if (video && (!passed || recordEveryTest)) {
+        await writeFile(join(ARTIFACTS_DIR, `${name}.mp4`), video, 'base64');
+      }
+    } catch (error) {
+      console.warn(`Screen recording could not be saved: ${(error as Error).message}`);
     }
   },
 };

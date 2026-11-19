@@ -24,7 +24,7 @@ class NativeAlert {
 
   private button(label: string) {
     return driver.isAndroid
-      ? $(`android=new UiSelector().className("android.widget.Button").textMatches("(?i)${label}")`)
+      ? $(`android=new UiSelector().className("android.widget.Button").text("${label}")`)
       : $(`-ios predicate string:type == "XCUIElementTypeButton" AND label == "${label}"`);
   }
 
@@ -32,8 +32,17 @@ class NativeAlert {
     await this.container.waitForDisplayed({ reverse: !isShown, timeout });
   }
 
-  async isShown(): Promise<boolean> {
-    return this.container.isDisplayed();
+  /**
+   * Returns true if the alert appears within `timeout`. Used by negative tests to
+   * prove that no alert shows up, allowing for the app's simulated request delay.
+   */
+  async appearsWithin(timeout: number): Promise<boolean> {
+    try {
+      await this.container.waitForDisplayed({ timeout });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /** Returns the alert title and message. */

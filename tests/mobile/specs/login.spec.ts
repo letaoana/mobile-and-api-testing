@@ -33,13 +33,15 @@ describe('Login', () => {
     await LoginScreen.login({ ...user, password: WRONG_PASSWORD });
 
     await expect(LoginScreen.validationError(LOGIN_ERRORS.invalidPassword)).toBeDisplayed();
-    expect(await NativeAlert.isShown()).toBe(false);
+    // The app shows its result alert after a 1.5 s simulated request, so wait longer than that.
+    expect(await NativeAlert.appearsWithin(3_000)).toBe(false);
   });
 
   it('shows an error message when the email address is invalid', async () => {
     await LoginScreen.login({ ...user, email: 'not-an-email' });
 
     await expect(LoginScreen.validationError(LOGIN_ERRORS.invalidEmail)).toBeDisplayed();
-    expect(await NativeAlert.isShown()).toBe(false);
+    // The app shows its result alert after a 1.5 s simulated request, so wait longer than that.
+    expect(await NativeAlert.appearsWithin(3_000)).toBe(false);
   });
 });

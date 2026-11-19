@@ -26,6 +26,7 @@ describe('Sign up', () => {
     await LoginScreen.signUp(user, `${user.password}-different`);
 
     await expect(LoginScreen.validationError(LOGIN_ERRORS.passwordMismatch)).toBeDisplayed();
-    expect(await NativeAlert.isShown()).toBe(false);
+    // The app shows its result alert after a 1.5 s simulated request, so wait longer than that.
+    expect(await NativeAlert.appearsWithin(3_000)).toBe(false);
   });
 });

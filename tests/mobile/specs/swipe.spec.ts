@@ -22,11 +22,12 @@ describe('Swipe', () => {
   });
 
   it('reveals the hidden content after scrolling down', async () => {
-    await expect(SwipeScreen.hiddenLogo).not.toBeDisplayed();
+    expect(await SwipeScreen.isHiddenLogoInViewport()).toBe(false);
 
     await SwipeScreen.scrollToHiddenLogo();
 
     await expect(SwipeScreen.hiddenLogo).toBeDisplayed();
+    expect(await SwipeScreen.isHiddenLogoInViewport()).toBe(true);
     await expect(SwipeScreen.hiddenMessage).toBeDisplayed();
   });
 });

@@ -25,7 +25,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          brew list ffmpeg >/dev/null 2>&1 || brew install ffmpeg
 
       - name: Download the demo app
         run: npm run app:download -- ios

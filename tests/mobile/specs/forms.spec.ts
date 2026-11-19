@@ -18,11 +18,11 @@ describe('Forms', () => {
 
     expect(await FormsScreen.isSwitchOn()).toBe(false);
     await FormsScreen.toggleSwitch();
-    expect(await FormsScreen.isSwitchOn()).toBe(true);
+    await FormsScreen.waitForSwitchState(true);
     await expect(FormsScreen.switchText).toHaveText('Click to turn the switch OFF');
 
     await FormsScreen.selectDropdownOption(option);
-    expect(await FormsScreen.getSelectedDropdownOption()).toBe(option);
+    await expect(FormsScreen.selectedDropdownOption).toHaveText(option);
 
     await FormsScreen.tapActiveButton();
     expect(await NativeAlert.getContent()).toEqual({
@@ -33,14 +33,15 @@ describe('Forms', () => {
 
     // The submitted values are kept after the dialog is closed.
     await expect(FormsScreen.typedTextResult).toHaveText(text);
-    expect(await FormsScreen.getSelectedDropdownOption()).toBe(option);
+    await expect(FormsScreen.selectedDropdownOption).toHaveText(option);
   });
 
   it('turns the switch back off on a second tap', async () => {
     await FormsScreen.toggleSwitch();
+    await FormsScreen.waitForSwitchState(true);
     await FormsScreen.toggleSwitch();
 
-    expect(await FormsScreen.isSwitchOn()).toBe(false);
+    await FormsScreen.waitForSwitchState(false);
     await expect(FormsScreen.switchText).toHaveText('Click to turn the switch ON');
   });
 });

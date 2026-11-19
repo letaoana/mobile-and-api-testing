@@ -1,5 +1,5 @@
 import { byA11yId, byText } from '../helpers/selectors.ts';
-import { isHorizontallyInViewport } from '../helpers/viewport.ts';
+import { distanceFromScreenCentreX, isInViewport } from '../helpers/viewport.ts';
 import BaseScreen from './BaseScreen.ts';
 
 /** Carousel slides, in the order the app renders them. Titles are upper-cased by the app. */
@@ -34,14 +34,20 @@ class SwipeScreen extends BaseScreen {
     return $(byText(title));
   }
 
-  /** Returns the title of the slide currently centred on screen. */
+  /** Returns the title of the slide closest to the centre of the screen. */
   async getVisibleSlideTitle(): Promise<string | undefined> {
+    let closest: { title: string; distance: number } | undefined;
     for (const title of CAROUSEL_SLIDES) {
-      if (await isHorizontallyInViewport(await this.slideTitle(title).getElement())) {
-        return title;
+      const distance = await distanceFromScreenCentreX(await this.slideTitle(title).getElement());
+      if (distance !== undefined && (!closest || distance < closest.distance)) {
+        closest = { title, distance };
       }
     }
-    return undefined;
+    return closest?.title;
+  }
+
+  async isHiddenLogoInViewport(): Promise<boolean> {
+    return isInViewport(await this.hiddenLogo.getElement());
   }
 
   async swipeCarousel(direction: 'left' | 'right'): Promise<void> {

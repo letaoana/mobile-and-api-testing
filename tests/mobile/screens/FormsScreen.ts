@@ -56,6 +56,14 @@ class FormsScreen extends BaseScreen {
     await this.tap(this.switchToggle);
   }
 
+  /** Waits until the switch reports the expected state. */
+  async waitForSwitchState(on: boolean): Promise<void> {
+    await driver.waitUntil(async () => (await this.isSwitchOn()) === on, {
+      timeout: 5_000,
+      timeoutMsg: `Switch did not turn ${on ? 'on' : 'off'}`,
+    });
+  }
+
   async isSwitchOn(): Promise<boolean> {
     // Android reports the state through the `checked` attribute, iOS through `value` ("1"/"0").
     const value = driver.isAndroid
@@ -77,8 +85,8 @@ class FormsScreen extends BaseScreen {
     await this.tap($('~done_button'));
   }
 
-  async getSelectedDropdownOption(): Promise<string> {
-    return this.dropdownValue.getText();
+  get selectedDropdownOption() {
+    return this.dropdownValue;
   }
 
   async tapActiveButton(): Promise<void> {
