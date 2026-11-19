@@ -55,6 +55,8 @@ class LoginScreen extends BaseScreen {
     await this.type(this.emailInput, email);
     await this.typePassword(this.passwordInput, password);
     await this.typePassword(this.repeatPasswordInput, repeatPassword);
+    // Closing iOS's password suggestion on the second field can clear the first one.
+    await this.retypeIfCleared(this.passwordInput, password);
     await this.submit(this.signUpButton);
   }
 
@@ -82,6 +84,17 @@ class LoginScreen extends BaseScreen {
     await input.clearValue();
     // Type into the focused field without tapping it again (which would reopen the sheet).
     await driver.execute('mobile: keys', { keys: [...value] });
+  }
+
+  /** iOS shows a secure field's content as one bullet per character. */
+  private async retypeIfCleared(input: ChainablePromiseElement, value: string): Promise<void> {
+    if (driver.isAndroid) {
+      return;
+    }
+    const shown = (await input.getAttribute('value')) ?? '';
+    if (shown !== '\u2022'.repeat(value.length)) {
+      await this.typePassword(input, value);
+    }
   }
 
   private get strongPasswordSheet() {
