@@ -11,10 +11,14 @@ export const byA11yId = (id: string): string => `~${id}`;
 
 const escapeQuotes = (value: string): string => value.replace(/"/g, '\\"');
 
-/** Element whose visible text equals `text`. */
+/**
+ * Element whose visible text equals `text`.
+ *
+ * iOS: React Native exposes a text node as two identical StaticText elements, and
+ * containers repeat their children's text in their own label. WebdriverIO requires a
+ * selector to resolve to exactly one element, so take the first matching StaticText.
+ */
 export const byText = (text: string): string =>
   driver.isAndroid
     ? `android=new UiSelector().text("${escapeQuotes(text)}")`
-    : // Containers on iOS expose their children's text as their own label, so only match
-      // the text element itself (selectors must resolve to exactly one element).
-      `-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "${escapeQuotes(text)}"`;
+    : `-ios class chain:**/XCUIElementTypeStaticText[\`label == "${escapeQuotes(text)}"\`][1]`;

@@ -40,9 +40,6 @@ class LoginScreen extends BaseScreen {
   private get signUpButton() {
     return $(byA11yId('button-SIGN UP'));
   }
-  private get formTitle() {
-    return $(byText('Login / Sign up Form'));
-  }
 
   async login({ email, password }: Credentials): Promise<void> {
     await this.tap(this.loginTab);
@@ -67,7 +64,7 @@ class LoginScreen extends BaseScreen {
   }
 
   private async submit(button: ChainablePromiseElement): Promise<void> {
-    await hideKeyboardIfShown(await this.formTitle.getElement());
+    await hideKeyboardIfShown();
     await this.scrollTo(button);
     await this.tap(button);
   }

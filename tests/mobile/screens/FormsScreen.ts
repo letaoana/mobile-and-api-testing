@@ -36,9 +36,6 @@ class FormsScreen extends BaseScreen {
   get inactiveButton() {
     return $(byA11yId('button-Inactive'));
   }
-  private get screenTitle() {
-    return $(byText('Form components'));
-  }
 
   /** The text field inside the dropdown that shows the selected option. */
   private get dropdownValue() {
@@ -49,7 +46,7 @@ class FormsScreen extends BaseScreen {
 
   async typeText(text: string): Promise<void> {
     await this.type(this.textInput, text);
-    await hideKeyboardIfShown(await this.screenTitle.getElement());
+    await hideKeyboardIfShown();
   }
 
   async toggleSwitch(): Promise<void> {
