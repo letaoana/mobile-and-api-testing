@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Application binaries (downloaded with `npm run app:download`)
+apps/*
+!apps/.gitkeep
+
+# Test output
+reports/
+test-results/
+playwright-report/
+blob-report/
+
+# Local environment
+.env
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

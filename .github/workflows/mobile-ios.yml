@@ -1,0 +1,56 @@
+name: Mobile tests - iOS
+
+on:
+  push:
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: iOS simulator
+    runs-on: macos-15
+    timeout-minutes: 75
+    env:
+      RECORD_VIDEO: 'true'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download the demo app
+        run: npm run app:download -- ios
+
+      - name: Pick an available iPhone simulator
+        run: |
+          DEVICE=$(xcrun simctl list devices available --json \
+            | jq -r '[.devices | to_entries[] | select(.key | test("iOS")) | .key as $rt | .value[]
+                     | select(.name | test("^iPhone [0-9]+$")) | {name, rt: $rt}] | last')
+          NAME=$(echo "$DEVICE" | jq -r '.name')
+          VERSION=$(echo "$DEVICE" | jq -r '.rt' | sed -E 's/.*iOS-([0-9]+)-([0-9]+).*/\1.\2/')
+          echo "Using $NAME (iOS $VERSION)"
+          echo "IOS_DEVICE_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "IOS_PLATFORM_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Prepare WebDriverAgent
+        run: npx appium driver run xcuitest build-wda
+
+      - name: Run tests on the simulator
+        run: npm run test:ios
+
+      - name: Upload mobile report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-report
+          path: reports/mobile
+          retention-days: 14
