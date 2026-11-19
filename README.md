@@ -40,7 +40,7 @@ objects (bonus): only the capabilities differ.
 │   │   ├── specs/                # One spec file per feature
 │   │   ├── screens/              # Screen objects (Page Object Model)
 │   │   │   └── components/       # Shared UI: tab bar, native alert
-│   │   ├── helpers/              # Cross-platform selectors, keyboard, viewport checks
+│   │   ├── helpers/              # Selectors, app relaunch, keyboard, viewport checks
 │   │   └── data/                 # Test data builders
 │   └── api/
 │       ├── specs/                # auth.spec.ts, booking.spec.ts
@@ -48,7 +48,9 @@ objects (bonus): only the capabilities differ.
 │       ├── fixtures/             # Playwright fixtures (clients + automatic clean-up)
 │       ├── schemas/              # Zod response contracts
 │       └── data/                 # Booking factory, credentials
-├── scripts/download-app.mjs      # Downloads the demo app builds into ./apps
+├── scripts/
+│   ├── download-app.mjs          # Downloads the demo app builds into ./apps
+│   └── summarise-page-source.mjs # Prints the UI hierarchy captured for failed tests (CI)
 ├── playwright.config.ts          # API test configuration
 ├── docs/evidence/                # Test execution evidence
 ├── .github/workflows/            # CI: API, Android emulator, iOS simulator
@@ -213,8 +215,9 @@ Reports: HTML in `reports/api/html`, JUnit in `reports/api/junit/results.xml`.
   the app maps its test ids to `accessibilityLabel` on Android and `testID` on iOS. Where platforms
   differ (visible text, alerts, pickers, switch state), the difference is contained in one helper or
   screen method using `driver.isAndroid`. Specs contain no platform checks.
-- **Selector priority:** accessibility id, then a platform text selector. No XPath with indexes and no
-  coordinates.
+- **Selector priority:** accessibility id, then a platform text selector. No XPath and no screen
+  coordinates for finding elements. The only coordinate taps are on iOS, where the keyboard is
+  dismissed by tapping the empty margin beside the form.
 - **No fixed sleeps.** Every wait is on a condition: `waitForDisplayed`, `waitUntil` (carousel settled on
   a new slide), or the alert appearing and disappearing.
 - **Independent tests.** WebdriverIO starts a fresh session (and app state) per spec file, and each test
@@ -275,6 +278,11 @@ runs.
   _invalid credentials_ scenario, the "wrong password" is one the app rejects (fewer than 8 characters),
   which is the only credential error the app can produce. The happy path still signs up first and logs
   in with the same credentials, so the flow matches the real user journey.
+- **iOS dropdown (Forms, iOS only).** On the iOS 26 simulator the dropdown's picker does not open from
+  automation: an element click, a touch action and XCUITest's native tap all leave it closed. Because of
+  this, _Forms › fills in every field_ fails on iOS. It passes on Android, and every other scenario
+  passes on both platforms (iOS: 9/10, see `docs/evidence/mobile/ios-simulator-ci-run.txt`). The test
+  is left failing rather than skipped, so the gap stays visible.
 - **iOS physical devices** need a signed build of the app (see above); the released iOS build is for
   simulators only.
 - **Restful Booker is a shared public sandbox.** It is reset periodically and can be slow or briefly
