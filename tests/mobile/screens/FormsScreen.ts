@@ -78,9 +78,14 @@ class FormsScreen extends BaseScreen {
     }
     // On iOS the picker wrapper is not accessible and ignores element clicks, so tap its
     // text field through XCUITest's native coordinate tap.
-    await this.dropdownValue.waitForDisplayed();
+    const field = await this.dropdownValue.getElement();
+    await field.waitForDisplayed();
+    const { width, height } = await field.getSize();
+    // x/y are relative to the element: tap its centre.
     await driver.execute('mobile: tap', {
-      elementId: (await this.dropdownValue.getElement()).elementId,
+      elementId: field.elementId,
+      x: Math.round(width / 2),
+      y: Math.round(height / 2),
     });
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
