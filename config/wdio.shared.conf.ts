@@ -14,6 +14,17 @@ const toFileName = (title: string): string =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
+/** Saves a screenshot and the UI hierarchy, which shows why a locator did not match. */
+async function saveFailureEvidence(name: string): Promise<void> {
+  await driver
+    .saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`))
+    .catch((error: Error) => console.warn(`Screenshot failed: ${error.message}`));
+  await driver
+    .getPageSource()
+    .then((source) => writeFile(join(ARTIFACTS_DIR, `${name}.xml`), source))
+    .catch((error: Error) => console.warn(`Page source failed: ${error.message}`));
+}
+
 /**
  * Configuration shared by every platform. Platform files only add capabilities
  * and anything that is genuinely platform specific.
@@ -92,14 +103,7 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
     const name = `${toFileName(test.parent)}--${toFileName(test.title)}`;
 
     if (!passed) {
-      await driver
-        .saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`))
-        .catch((error: Error) => console.warn(`Screenshot failed: ${error.message}`));
-      // The UI hierarchy at the moment of failure shows which locator no longer matches.
-      await driver
-        .getPageSource()
-        .then((source) => writeFile(join(ARTIFACTS_DIR, `${name}.xml`), source))
-        .catch((error: Error) => console.warn(`Page source failed: ${error.message}`));
+      await saveFailureEvidence(name);
     }
 
     try {
@@ -109,6 +113,13 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
       }
     } catch (error) {
       console.warn(`Screen recording could not be saved: ${(error as Error).message}`);
+    }
+  },
+
+  /** `afterTest` does not run when a hook fails, so capture evidence for hook failures here. */
+  async afterHook(test, _context, { error }) {
+    if (error) {
+      await saveFailureEvidence(`${toFileName(test.parent)}--${toFileName(test.title)}`);
     }
   },
 };

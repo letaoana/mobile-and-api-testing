@@ -56,9 +56,14 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          cores: 4
+          ram-size: 4096M
           disable-animations: true
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: npm run test:android
+          emulator-options: -no-metrics -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # Hide "System UI isn't responding" dialogs that slow CI emulators show over the app.
+          script: |
+            adb shell settings put global hide_error_dialogs 1
+            npm run test:android
 
       - name: Summarise failure page sources
         if: failure()
