@@ -70,12 +70,14 @@ class FormsScreen extends BaseScreen {
   }
 
   async selectDropdownOption(option: DropdownOption): Promise<void> {
-    await this.tap(this.dropdown);
     if (driver.isAndroid) {
+      await this.tap(this.dropdown);
       // Non-native Android picker style opens a dialog with one row per option.
       await this.tap($(byText(option)));
       return;
     }
+    // On iOS the wrapper is not accessible, so open the picker through its text field.
+    await this.tap(this.dropdownValue);
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
     await wheel.setValue(option);

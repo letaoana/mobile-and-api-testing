@@ -45,7 +45,7 @@ class LoginScreen extends BaseScreen {
     await this.tap(this.loginTab);
     await this.repeatPasswordInput.waitForExist({ reverse: true });
     await this.type(this.emailInput, email);
-    await this.type(this.passwordInput, password);
+    await this.typePassword(this.passwordInput, password);
     await this.submit(this.loginButton);
   }
 
@@ -53,14 +53,41 @@ class LoginScreen extends BaseScreen {
     await this.tap(this.signUpTab);
     await this.repeatPasswordInput.waitForDisplayed();
     await this.type(this.emailInput, email);
-    await this.type(this.passwordInput, password);
-    await this.type(this.repeatPasswordInput, repeatPassword);
+    await this.typePassword(this.passwordInput, password);
+    await this.typePassword(this.repeatPasswordInput, repeatPassword);
     await this.submit(this.signUpButton);
   }
 
   /** Returns the validation error element for the given message. */
   validationError(message: string) {
     return $(byText(message));
+  }
+
+  /**
+   * iOS offers a "Use Strong Password?" AutoFill sheet when a password field gets focus,
+   * which swallows the typed characters. Focus the field, close the sheet if it shows,
+   * then type into the focused field.
+   */
+  private async typePassword(input: ChainablePromiseElement, value: string): Promise<void> {
+    if (driver.isAndroid) {
+      await this.type(input, value);
+      return;
+    }
+    await this.tap(input);
+    if (await this.strongPasswordSheet.isDisplayed().catch(() => false)) {
+      await this.tap(this.closeStrongPasswordSheet);
+      await this.strongPasswordSheet.waitForDisplayed({ reverse: true });
+      await this.tap(input);
+    }
+    await input.clearValue();
+    await driver.keys(value);
+  }
+
+  private get strongPasswordSheet() {
+    return $(byA11yId('GenerateStrongPasswordButton'));
+  }
+  private get closeStrongPasswordSheet() {
+    return $(byA11yId('xmark'));
   }
 
   private async submit(button: ChainablePromiseElement): Promise<void> {

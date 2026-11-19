@@ -22,6 +22,8 @@ const realDeviceCapabilities = isRealDevice
 
 export const config: WebdriverIO.Config = {
   ...sharedConfig,
+  // The first session on a fresh simulator also builds and launches WebDriverAgent.
+  connectionRetryTimeout: 300_000,
   capabilities: [
     {
       platformName: 'iOS',
