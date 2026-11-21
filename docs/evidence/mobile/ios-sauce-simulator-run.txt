@@ -1,0 +1,120 @@
+Mobile tests - Sauce Labs (iOS) | GitHub Actions run 44941171215 | Sauce Labs iPhone Simulator, iOS 26.5, Appium 3.3.0, eu-central-1
+https://github.com/letaoana/mobile-and-api-testing/actions/runs/44941171215
+9/10 passed. The Forms dropdown does not open on iOS (see README, Known app behaviour and limitations).
+
+> wdio run config/wdio.sauce.ios.conf.ts
+
+
+Execution of 5 workers started at 2026-11-21T19:29:55.711Z
+
+[0-1] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-0] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-1] Error in "Forms.fills in every field, submits the form and shows the result"
+Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+    at async FormsScreen.selectDropdownOption (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+    at async Context.<anonymous> (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+[0-0] PASSED in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-2] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-1] RETRYING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] Error in "Forms.fills in every field, submits the form and shows the result"
+Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+    at async FormsScreen.selectDropdownOption (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+    at async Context.<anonymous> (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+[0-1] FAILED in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts (1 retries)
+[0-3] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-2] PASSED in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-4] RUNNING in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+[0-3] PASSED in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-4] PASSED in iOS(26.5) on iOS - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-0] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-0] Session ID: 1bd268bac18a4dad9538a7a3acaaa789
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] » tests/mobile/specs/drag.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-0] Drag and drop
+[ios.simulator.wdio.native.app.zip iOS #0-0]    ✓ completes the puzzle and can start over
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] 1 passing (46.6s)
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] Check out job at https://app.eu-central-1.saucelabs.com/tests/1bd268bac18a4dad9538a7a3acaaa789
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-1] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-1] Session ID: 7351bef38feb4d0a8a787190bb88eb1f
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] » tests/mobile/specs/forms.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-1] Forms
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✖ fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✓ turns the switch back off on a second tap
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 passing (57s)
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 failing
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1) Forms fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1] element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1] Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async FormsScreen.selectDropdownOption (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async Context.<anonymous> (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] Check out job at https://app.eu-central-1.saucelabs.com/tests/7351bef38feb4d0a8a787190bb88eb1f
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-1] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-1] Session ID: 1407dab25cb446b8928053ac79efe63d
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] » tests/mobile/specs/forms.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-1] Forms
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✖ fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✓ turns the switch back off on a second tap
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 passing (57.3s)
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 failing
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1) Forms fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1] element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1] Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async FormsScreen.selectDropdownOption (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async Context.<anonymous> (/home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] Check out job at https://app.eu-central-1.saucelabs.com/tests/1407dab25cb446b8928053ac79efe63d
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-2] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-2] Session ID: 4279d2209e844a98ac397cf6fd19cd26
+[ios.simulator.wdio.native.app.zip iOS #0-2]
+[ios.simulator.wdio.native.app.zip iOS #0-2] » tests/mobile/specs/login.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-2] Login
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ logs in with valid credentials
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ shows an error message when the password is wrong
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ shows an error message when the email address is invalid
+[ios.simulator.wdio.native.app.zip iOS #0-2]
+[ios.simulator.wdio.native.app.zip iOS #0-2] 3 passing (1m 51.6s)
+[ios.simulator.wdio.native.app.zip iOS #0-2]
+[ios.simulator.wdio.native.app.zip iOS #0-2] Check out job at https://app.eu-central-1.saucelabs.com/tests/4279d2209e844a98ac397cf6fd19cd26
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-3] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-3] Session ID: 5c38ddd20a014a3bbc5ff2864cbe4f1b
+[ios.simulator.wdio.native.app.zip iOS #0-3]
+[ios.simulator.wdio.native.app.zip iOS #0-3] » tests/mobile/specs/signup.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-3] Sign up
+[ios.simulator.wdio.native.app.zip iOS #0-3]    ✓ creates a new account with a valid email and matching passwords
+[ios.simulator.wdio.native.app.zip iOS #0-3]    ✓ rejects the sign up when the passwords do not match
+[ios.simulator.wdio.native.app.zip iOS #0-3]
+[ios.simulator.wdio.native.app.zip iOS #0-3] 2 passing (1m 43.1s)
+[ios.simulator.wdio.native.app.zip iOS #0-3]
+[ios.simulator.wdio.native.app.zip iOS #0-3] Check out job at https://app.eu-central-1.saucelabs.com/tests/5c38ddd20a014a3bbc5ff2864cbe4f1b
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-4] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-4] Session ID: 3b390ce582784757b9f672637365f5ca
+[ios.simulator.wdio.native.app.zip iOS #0-4]
+[ios.simulator.wdio.native.app.zip iOS #0-4] » tests/mobile/specs/swipe.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-4] Swipe
+[ios.simulator.wdio.native.app.zip iOS #0-4]    ✓ moves the carousel to the next and previous slide
+[ios.simulator.wdio.native.app.zip iOS #0-4]    ✓ reveals the hidden content after scrolling down
+[ios.simulator.wdio.native.app.zip iOS #0-4]
+[ios.simulator.wdio.native.app.zip iOS #0-4] 2 passing (1m 36.1s)
+[ios.simulator.wdio.native.app.zip iOS #0-4]
+[ios.simulator.wdio.native.app.zip iOS #0-4] Check out job at https://app.eu-central-1.saucelabs.com/tests/3b390ce582784757b9f672637365f5ca
+
+
+Spec Files:	 4 passed, 1 retries, 1 failed, 5 total (100% completed) in 00:07:21  

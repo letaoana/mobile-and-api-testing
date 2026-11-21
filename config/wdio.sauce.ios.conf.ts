@@ -20,8 +20,8 @@ export const config: WebdriverIO.Config = {
         ? envOr('SAUCE_IOS_DEVICE', 'iPhone.*')
         : envOr('SAUCE_IOS_DEVICE', 'iPhone Simulator'),
       // Sauce Labs simulators pair each iOS version with specific Appium versions
-      // (see scripts/sauce-list-platforms.mjs); iOS 26.1 runs on Appium 2.19.0.
-      'appium:platformVersion': envOr('SAUCE_IOS_VERSION', realDevice ? '18' : '26.1'),
+      // (see scripts/sauce-list-platforms.mjs); iOS 26.5 runs on Appium 3.3.0.
+      'appium:platformVersion': envOr('SAUCE_IOS_VERSION', realDevice ? '18' : '26.5'),
       'appium:app': `storage:filename=${envOr(
         'SAUCE_IOS_APP',
         realDevice ? 'wdiodemoapp.ipa' : 'ios.simulator.wdio.native.app.zip',
@@ -30,7 +30,7 @@ export const config: WebdriverIO.Config = {
       'appium:newCommandTimeout': 240,
       'sauce:options': {
         ...sauceOptions('iOS'),
-        ...(!realDevice && { appiumVersion: envOr('SAUCE_APPIUM_VERSION', '2.19.0') }),
+        ...(!realDevice && { appiumVersion: envOr('SAUCE_APPIUM_VERSION', '3.3.0') }),
       },
     },
   ],
