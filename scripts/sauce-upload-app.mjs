@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Uploads the demo app builds from ./apps to Sauce Labs App Storage, where the Sauce
- * configs reference them as `storage:filename=<name>`.
+ * configs reference them as `storage:filename=<name>`. A file that is already stored
+ * with the same checksum is not uploaded again (Sauce Labs limits uploads per 15 minutes).
  *
  * Usage:
  *   npm run sauce:upload                  # Android APK + iOS simulator build
@@ -11,7 +12,8 @@
  * Needs SAUCE_LABS_USERNAME / SAUCE_LABS_ACCESS_KEY (or SAUCE_USERNAME / SAUCE_ACCESS_KEY)
  * and optionally SAUCE_REGION (default eu-central-1).
  */
-import { existsSync, openAsBlob } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { createReadStream, existsSync, openAsBlob, statSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 
 if (existsSync('.env')) {
@@ -35,8 +37,31 @@ const files = (requested.length ? requested : Object.keys(BUILDS)).map((arg) =>
   resolve(BUILDS[arg] ?? arg),
 );
 
-const endpoint = `https://api.${region}.saucelabs.com/v1/storage/upload`;
+const api = `https://api.${region}.saucelabs.com/v1/storage`;
 const auth = `Basic ${Buffer.from(`${user}:${key}`).toString('base64')}`;
+
+const md5Of = (file) =>
+  new Promise((done, fail) => {
+    const hash = createHash('md5');
+    createReadStream(file)
+      .on('data', (chunk) => hash.update(chunk))
+      .on('end', () => done(hash.digest('hex')))
+      .on('error', fail);
+  });
+
+/** Returns the stored file with this name and content, if Sauce Labs already has it. */
+async function findStored(name, md5, size) {
+  const response = await fetch(`${api}/files?q=${encodeURIComponent(name)}&per_page=25`, {
+    headers: { Authorization: auth },
+  });
+  if (!response.ok) {
+    return undefined;
+  }
+  const { items = [] } = await response.json();
+  return items.find(
+    (item) => item.name === name && (item.md5 ? item.md5 === md5 : item.size === size),
+  );
+}
 
 for (const file of files) {
   if (!existsSync(file)) {
@@ -44,12 +69,18 @@ for (const file of files) {
     process.exit(1);
   }
   const name = basename(file);
+  const stored = await findStored(name, await md5Of(file), statSync(file).size);
+  if (stored) {
+    console.log(`✔ ${name} already in Sauce Labs App Storage (id ${stored.id}); upload skipped`);
+    continue;
+  }
+
   const form = new FormData();
   form.append('payload', await openAsBlob(file), name);
   form.append('name', name);
 
   console.log(`↑ ${name} → Sauce Labs App Storage (${region})`);
-  const response = await fetch(endpoint, {
+  const response = await fetch(`${api}/upload`, {
     method: 'POST',
     headers: { Authorization: auth },
     body: form,
