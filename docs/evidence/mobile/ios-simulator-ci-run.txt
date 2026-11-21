@@ -1,0 +1,95 @@
+Mobile tests - iOS | GitHub Actions run 44608592337 | iPhone 16 simulator (iOS 26.2)
+https://github.com/letaoana/mobile-and-api-testing/actions/runs/44608592337
+
+> wdio run config/wdio.ios.conf.ts
+Execution of 5 workers started at 2026-11-19T20:30:10.891Z
+[0-0] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-0] PASSED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-1] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] Error in "Forms.fills in every field, submits the form and shows the result"
+[0-1] RETRYING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-1] Error in "Forms.fills in every field, submits the form and shows the result"
+[0-1] FAILED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts (1 retries)
+[0-2] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-2] PASSED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-3] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-3] PASSED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-4] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+[0-4] PASSED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+ "spec" Reporter:
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-0] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-0] Session ID: 1a1a3232-106f-4263-93f3-acc88443ac1f
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] » tests/mobile/specs/drag.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-0] Drag and drop
+[ios.simulator.wdio.native.app.zip iOS #0-0]    ✓ completes the puzzle and can start over
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] 1 passing (51.6s)
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-1] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-1] Session ID: bf7440d1-8a24-4060-9b0c-e971899d7517
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] » tests/mobile/specs/forms.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-1] Forms
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✖ fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✓ turns the switch back off on a second tap
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 passing (1m 12.1s)
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 failing
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1) Forms fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1] element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1] Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async FormsScreen.selectDropdownOption (/Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async Context.<anonymous> (/Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-1] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-1] Session ID: 1547c6ed-fe95-4ffc-804a-d0a4bc3b7fbd
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] » tests/mobile/specs/forms.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-1] Forms
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✖ fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1]    ✓ turns the switch back off on a second tap
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 passing (1m 19.8s)
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1 failing
+[ios.simulator.wdio.native.app.zip iOS #0-1]
+[ios.simulator.wdio.native.app.zip iOS #0-1] 1) Forms fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-1] element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1] Error: element ("-ios class chain:**/XCUIElementTypePickerWheel") still not displayed after 15000ms
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async FormsScreen.selectDropdownOption (/Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/screens/FormsScreen.ts:91:5)
+[ios.simulator.wdio.native.app.zip iOS #0-1]     at async Context.<anonymous> (/Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts:30:5)
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-2] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-2] Session ID: 9f7ff15e-4ed4-4dea-9084-1f103e76f34f
+[ios.simulator.wdio.native.app.zip iOS #0-2]
+[ios.simulator.wdio.native.app.zip iOS #0-2] » tests/mobile/specs/login.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-2] Login
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ logs in with valid credentials
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ shows an error message when the password is wrong
+[ios.simulator.wdio.native.app.zip iOS #0-2]    ✓ shows an error message when the email address is invalid
+[ios.simulator.wdio.native.app.zip iOS #0-2]
+[ios.simulator.wdio.native.app.zip iOS #0-2] 3 passing (2m 57.2s)
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-3] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-3] Session ID: a921fb39-9c1d-4cc5-9890-73cbe4d066f2
+[ios.simulator.wdio.native.app.zip iOS #0-3]
+[ios.simulator.wdio.native.app.zip iOS #0-3] » tests/mobile/specs/signup.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-3] Sign up
+[ios.simulator.wdio.native.app.zip iOS #0-3]    ✓ creates a new account with a valid email and matching passwords
+[ios.simulator.wdio.native.app.zip iOS #0-3]    ✓ rejects the sign up when the passwords do not match
+[ios.simulator.wdio.native.app.zip iOS #0-3]
+[ios.simulator.wdio.native.app.zip iOS #0-3] 2 passing (2m 33.2s)
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-4] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-4] Session ID: 9836e476-f194-4c65-9599-606f6cf7ed67
+[ios.simulator.wdio.native.app.zip iOS #0-4]
+[ios.simulator.wdio.native.app.zip iOS #0-4] » tests/mobile/specs/swipe.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-4] Swipe
+[ios.simulator.wdio.native.app.zip iOS #0-4]    ✓ moves the carousel to the next and previous slide
+[ios.simulator.wdio.native.app.zip iOS #0-4]    ✓ reveals the hidden content after scrolling down
+[ios.simulator.wdio.native.app.zip iOS #0-4]
+[ios.simulator.wdio.native.app.zip iOS #0-4] 2 passing (1m 31.6s)
+Spec Files:	 4 passed, 1 retries, 1 failed, 5 total (100% completed) in 00:23:23  

@@ -1,0 +1,99 @@
+name: Mobile tests - iOS
+
+# Device runs are slow and costly: they run for pull requests and pushes to main that change
+# the mobile tests or what they depend on, and on demand.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.ios.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-ios.yml'
+  pull_request:
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.ios.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-ios.yml'
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: Spec file to run (empty = all specs)
+        default: ''
+      grep:
+        description: Run only tests whose title matches this text (empty = all tests)
+        default: ''
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: iOS simulator
+    runs-on: macos-15
+    timeout-minutes: 75
+    env:
+      RECORD_VIDEO: 'true'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          brew list ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+
+      - name: Download the demo app
+        run: npm run app:download -- ios
+
+      - name: Pick an available iPhone simulator
+        run: |
+          DEVICE=$(xcrun simctl list devices available --json \
+            | jq -r '[.devices | to_entries[] | select(.key | test("iOS")) | .key as $rt | .value[]
+                     | select(.name | test("^iPhone [0-9]+$")) | {name, rt: $rt}] | last')
+          NAME=$(echo "$DEVICE" | jq -r '.name')
+          VERSION=$(echo "$DEVICE" | jq -r '.rt' | sed -E 's/.*iOS-([0-9]+)-([0-9]+).*/\1.\2/')
+          echo "Using $NAME (iOS $VERSION)"
+          echo "IOS_DEVICE_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "IOS_PLATFORM_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Prepare WebDriverAgent
+        run: npx appium driver run xcuitest build-wda
+
+      - name: Run tests on the simulator
+        env:
+          SPEC: ${{ inputs.spec }}
+          GREP: ${{ inputs.grep }}
+        run: |
+          args=()
+          [ -n "$SPEC" ] && args+=(--spec "$SPEC")
+          [ -n "$GREP" ] && args+=(--mochaOpts.grep "$GREP")
+          npm run test:ios -- "${args[@]}"
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
+
+      - name: Upload mobile report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-report
+          path: reports/mobile
+          retention-days: 14

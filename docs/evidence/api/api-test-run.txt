@@ -1,0 +1,11 @@
+
+Running 6 tests using 2 workers
+
+  ✓  1 [restful-booker] › tests/api/specs/auth.spec.ts:6:3 › POST /auth - create token › returns a token for valid credentials (468ms)
+  ✓  2 [restful-booker] › tests/api/specs/auth.spec.ts:17:3 › POST /auth - create token › returns a new token on every request (446ms)
+  ✓  3 [restful-booker] › tests/api/specs/auth.spec.ts:28:3 › POST /auth - create token › does not return a token for a wrong password (143ms)
+  ✓  4 [restful-booker] › tests/api/specs/booking.spec.ts:6:3 › POST /booking - create booking › creates a booking and returns the data that was sent (553ms)
+  ✓  5 [restful-booker] › tests/api/specs/booking.spec.ts:24:3 › POST /booking - create booking › persists the booking so it can be read back by id (567ms)
+  ✓  6 [restful-booker] › tests/api/specs/booking.spec.ts:41:3 › POST /booking - create booking › creates a booking without the optional additional needs (445ms)
+
+  6 passed (2.0s)

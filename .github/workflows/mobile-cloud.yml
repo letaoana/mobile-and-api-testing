@@ -1,0 +1,120 @@
+name: Mobile tests - Cloud devices
+
+# Runs the mobile suite on a cloud device provider: Sauce Labs or BrowserStack.
+# Choose the provider per run, or set the MOBILE_CLOUD_PROVIDER repository variable
+# (sauce | browserstack; default sauce). Credentials come from repository secrets:
+#   Sauce Labs:   SAUCE_USERNAME, SAUCE_ACCESS_KEY (optional variable SAUCE_REGION)
+#   BrowserStack: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY
+on:
+  push:
+    paths:
+      - 'config/wdio.cloud.*'
+      - 'config/wdio.sauce.*'
+      - 'config/wdio.browserstack.*'
+      - 'scripts/sauce-*.mjs'
+      - 'scripts/browserstack-*.mjs'
+      - '.github/workflows/mobile-cloud.yml'
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: Cloud provider (repository-default = MOBILE_CLOUD_PROVIDER variable, else sauce)
+        type: choice
+        options: [repository-default, sauce, browserstack]
+        default: repository-default
+      platform:
+        description: Platform to run
+        type: choice
+        options: [android, ios, both]
+        default: android
+      device:
+        description: Device name (Sauce Labs also accepts a regex; empty = provider default)
+        default: ''
+      os-version:
+        description: OS version (empty = provider default)
+        default: ''
+      sauce-ios-appium-version:
+        description: Sauce Labs iOS simulators only - Appium version paired with the iOS version
+        default: ''
+
+concurrency:
+  group: cloud-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PROVIDER: ${{ inputs.provider != 'repository-default' && inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'sauce' }}
+
+jobs:
+  cloud:
+    name: ${{ inputs.provider != 'repository-default' && inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'sauce' }} (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        # Push runs (no inputs) cover Android, which both providers run on real devices.
+        platform: ${{ inputs.platform == 'both' && fromJSON('["android","ios"]') || fromJSON(format('["{0}"]', inputs.platform || 'android')) }}
+    env:
+      CLOUD_BUILD: '${{ github.workflow }} #${{ github.run_number }}'
+      SAUCE_LABS_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_LABS_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+      SAUCE_REGION: ${{ vars.SAUCE_REGION || 'eu-central-1' }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      SAUCE_ANDROID_DEVICE: ${{ matrix.platform == 'android' && inputs.device || '' }}
+      SAUCE_ANDROID_VERSION: ${{ matrix.platform == 'android' && inputs.os-version || '' }}
+      SAUCE_IOS_DEVICE: ${{ matrix.platform == 'ios' && inputs.device || '' }}
+      SAUCE_IOS_VERSION: ${{ matrix.platform == 'ios' && inputs.os-version || '' }}
+      SAUCE_APPIUM_VERSION: ${{ matrix.platform == 'ios' && inputs.sauce-ios-appium-version || '' }}
+      BROWSERSTACK_ANDROID_DEVICE: ${{ matrix.platform == 'android' && inputs.device || '' }}
+      BROWSERSTACK_ANDROID_VERSION: ${{ matrix.platform == 'android' && inputs.os-version || '' }}
+      BROWSERSTACK_IOS_DEVICE: ${{ matrix.platform == 'ios' && inputs.device || '' }}
+      BROWSERSTACK_IOS_VERSION: ${{ matrix.platform == 'ios' && inputs.os-version || '' }}
+      BROWSERSTACK_IOS_APP: ${{ vars.BROWSERSTACK_IOS_APP }}
+    steps:
+      - name: Check provider credentials
+        run: |
+          case "$PROVIDER" in
+            sauce) [ -n "$SAUCE_LABS_USERNAME" ] && [ -n "$SAUCE_LABS_ACCESS_KEY" ] ||
+              { echo "::error::Add the SAUCE_USERNAME and SAUCE_ACCESS_KEY repository secrets."; exit 1; } ;;
+            browserstack) [ -n "$BROWSERSTACK_USERNAME" ] && [ -n "$BROWSERSTACK_ACCESS_KEY" ] ||
+              { echo "::error::Add the BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY repository secrets."; exit 1; } ;;
+            *) echo "::error::Unknown provider '$PROVIDER' (use sauce or browserstack)."; exit 1 ;;
+          esac
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download the demo app
+        if: env.PROVIDER == 'sauce' || matrix.platform == 'android'
+        run: npm run app:download -- ${{ matrix.platform }}
+
+      - name: Upload the app to the provider
+        # BrowserStack iOS uses a signed .ipa uploaded beforehand (BROWSERSTACK_IOS_APP variable).
+        if: env.PROVIDER == 'sauce' || matrix.platform == 'android'
+        run: npm run ${{ env.PROVIDER }}:upload -- ${{ matrix.platform }}
+
+      - name: List devices and platforms available to the account
+        if: env.PROVIDER == 'sauce'
+        run: node scripts/sauce-list-platforms.mjs
+
+      - name: Run tests
+        run: npm run test:${{ env.PROVIDER }}:${{ matrix.platform }}
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
+
+      - name: Upload mobile report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.PROVIDER }}-${{ matrix.platform }}-report
+          path: reports/mobile
+          retention-days: 14

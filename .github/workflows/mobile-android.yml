@@ -1,0 +1,97 @@
+name: Mobile tests - Android
+
+# Device runs are slow and costly: they run for pull requests and pushes to main that change
+# the mobile tests or what they depend on, and on demand.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.android.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-android.yml'
+  pull_request:
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.android.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-android.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android emulator (API ${{ matrix.api-level }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [34]
+    env:
+      RECORD_VIDEO: 'true'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download the demo app
+        run: npm run app:download -- android
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run tests on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 4
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-metrics -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # Hide "System UI isn't responding" dialogs that slow CI emulators show over the app.
+          script: |
+            adb shell settings put global hide_error_dialogs 1
+            npm run test:android
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
+
+      - name: Upload mobile report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: android-report-api-${{ matrix.api-level }}
+          path: reports/mobile
+          retention-days: 14
