@@ -23,6 +23,12 @@ on:
       android-version:
         description: Android version (empty = any version)
         default: ''
+      ios-version:
+        description: iOS simulator version (empty = config default)
+        default: ''
+      ios-appium-version:
+        description: Appium version for the iOS simulator (must match the iOS version)
+        default: ''
 
 concurrency:
   group: sauce-${{ github.ref }}
@@ -46,6 +52,8 @@ jobs:
       SAUCE_BUILD: '${{ github.workflow }} #${{ github.run_number }}'
       SAUCE_ANDROID_DEVICE: ${{ inputs.android-device }}
       SAUCE_ANDROID_VERSION: ${{ inputs.android-version }}
+      SAUCE_IOS_VERSION: ${{ inputs.ios-version }}
+      SAUCE_APPIUM_VERSION: ${{ inputs.ios-appium-version }}
     steps:
       - uses: actions/checkout@v5
 
