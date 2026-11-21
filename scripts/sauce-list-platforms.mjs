@@ -55,4 +55,15 @@ if (Array.isArray(platforms)) {
   for (const [name, versions] of summary) {
     console.log(`  ${name}: ${[...new Set(versions)].sort().join(', ')}`);
   }
+
+  // Appium versions per simulator OS version (the value for sauce:options.appiumVersion).
+  console.log('\nAppium versions for "iPhone Simulator" and "Google Pixel 7a Emulator":');
+  for (const p of platforms.filter((p) =>
+    ['iPhone Simulator', 'Google Pixel 7a Emulator'].includes(p.long_name),
+  )) {
+    const supported = (p.supported_backend_versions ?? []).join(', ');
+    console.log(
+      `  ${p.long_name} ${p.short_version}: recommended ${p.recommended_backend_version}; supported ${supported}`,
+    );
+  }
 }
