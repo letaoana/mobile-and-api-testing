@@ -1,6 +1,5 @@
 # Mobile & API Test Automation
 
-[![Mobile tests](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile.yml)
 [![Android](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-android.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-android.yml)
 [![iOS](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-ios.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-ios.yml)
 [![API tests](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/api-tests.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/api-tests.yml)
@@ -134,7 +133,6 @@ docs/evidence/     test execution evidence (logs, reports, screenshots)
 | `api-tests.yml`      | API tests                                  | Changes to API tests, Playwright config or dependencies                    |
 | `mobile-android.yml` | Mobile suite on an Android emulator        | Pull requests and `main`, when mobile tests, config or dependencies change |
 | `mobile-ios.yml`     | Mobile suite on an iOS simulator           | As for Android; manual runs can target one spec or test (`spec`, `grep`)   |
-| `mobile.yml`         | Overall mobile status (Android and iOS)    | After each Android or iOS run                                              |
 | `mobile-cloud.yml`   | Mobile suite on Sauce Labs or BrowserStack | Manually, or when the cloud setup changes                                  |
 
 Every workflow can also be started manually and uploads its reports as artifacts. Badges show the
