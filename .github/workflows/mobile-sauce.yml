@@ -41,7 +41,8 @@ jobs:
     env:
       SAUCE_LABS_USERNAME: ${{ secrets.SAUCE_USERNAME }}
       SAUCE_LABS_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-      SAUCE_REGION: us-west-1
+      # Data centre of the Sauce Labs account; override with the SAUCE_REGION repository variable.
+      SAUCE_REGION: ${{ vars.SAUCE_REGION || 'eu-central-1' }}
       SAUCE_BUILD: '${{ github.workflow }} #${{ github.run_number }}'
       SAUCE_ANDROID_DEVICE: ${{ inputs.android-device }}
       SAUCE_ANDROID_VERSION: ${{ inputs.android-version }}

@@ -166,7 +166,7 @@ npm run test:sauce:ios               # iOS simulator on Sauce Labs
 
 | Variable                | Default          | Purpose                                               |
 | ----------------------- | ---------------- | ----------------------------------------------------- |
-| `SAUCE_REGION`          | `us-west-1`      | Sauce Labs data centre (`eu-central-1`, `us-east-4`)  |
+| `SAUCE_REGION`          | `eu-central-1`   | Sauce Labs data centre (`us-west-1`, `us-east-4`)     |
 | `SAUCE_ANDROID_DEVICE`  | `Google Pixel.*` | Device name or regular expression                     |
 | `SAUCE_ANDROID_VERSION` | `14`             | Android version                                       |
 | `SAUCE_IOS_REAL_DEVICE` | `false`          | `true` to use real iPhones (needs an uploaded `.ipa`) |

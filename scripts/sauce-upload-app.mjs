@@ -9,7 +9,7 @@
  *   npm run sauce:upload -- ./apps/my.ipa # any file
  *
  * Needs SAUCE_LABS_USERNAME / SAUCE_LABS_ACCESS_KEY (or SAUCE_USERNAME / SAUCE_ACCESS_KEY)
- * and optionally SAUCE_REGION (default us-west-1).
+ * and optionally SAUCE_REGION (default eu-central-1).
  */
 import { existsSync, openAsBlob } from 'node:fs';
 import { basename, resolve } from 'node:path';
@@ -20,7 +20,7 @@ if (existsSync('.env')) {
 
 const user = process.env.SAUCE_LABS_USERNAME || process.env.SAUCE_USERNAME;
 const key = process.env.SAUCE_LABS_ACCESS_KEY || process.env.SAUCE_ACCESS_KEY;
-const region = process.env.SAUCE_REGION || 'us-west-1';
+const region = process.env.SAUCE_REGION || 'eu-central-1';
 if (!user || !key) {
   console.error('Set SAUCE_LABS_USERNAME and SAUCE_LABS_ACCESS_KEY first.');
   process.exit(1);

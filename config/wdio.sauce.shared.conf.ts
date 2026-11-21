@@ -17,7 +17,7 @@ if (!user || !key) {
   );
 }
 
-export const SAUCE_REGION = envOr('SAUCE_REGION', 'us-west-1') as Options.SauceRegions;
+export const SAUCE_REGION = envOr('SAUCE_REGION', 'eu-central-1') as Options.SauceRegions;
 
 /** Groups the runs of one execution under a single build in the Sauce Labs dashboard. */
 export const SAUCE_BUILD = envOr(
