@@ -8,6 +8,13 @@ on:
   pull_request:
     paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
+    inputs:
+      spec:
+        description: Spec file to run (empty = all specs)
+        default: ''
+      grep:
+        description: Run only tests whose title matches this text (empty = all tests)
+        default: ''
 
 concurrency:
   group: ios-${{ github.ref }}
@@ -51,7 +58,14 @@ jobs:
         run: npx appium driver run xcuitest build-wda
 
       - name: Run tests on the simulator
-        run: npm run test:ios
+        env:
+          SPEC: ${{ inputs.spec }}
+          GREP: ${{ inputs.grep }}
+        run: |
+          args=()
+          [ -n "$SPEC" ] && args+=(--spec "$SPEC")
+          [ -n "$GREP" ] && args+=(--mochaOpts.grep "$GREP")
+          npm run test:ios -- "${args[@]}"
 
       - name: Summarise failure page sources
         if: failure()
