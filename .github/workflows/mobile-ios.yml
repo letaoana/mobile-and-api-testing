@@ -1,12 +1,31 @@
 name: Mobile tests - iOS
 
-# Device runs are slow and costly, so they run for pull requests, on main and on demand.
+# Device runs are slow and costly: they run for pull requests and pushes to main that change
+# the mobile tests or what they depend on, and on demand.
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md', 'docs/**']
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.ios.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-ios.yml'
   pull_request:
-    paths-ignore: ['**.md', 'docs/**']
+    paths:
+      - 'tests/mobile/**'
+      - 'config/env.ts'
+      - 'config/wdio.shared.conf.ts'
+      - 'config/wdio.ios.conf.ts'
+      - 'scripts/download-app.mjs'
+      - 'scripts/summarise-page-source.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile-ios.yml'
   workflow_dispatch:
     inputs:
       spec:

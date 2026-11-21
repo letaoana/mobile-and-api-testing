@@ -288,18 +288,23 @@ Reports: HTML in `reports/api/html`, JUnit in `reports/api/junit/results.xml`.
 
 ## Continuous integration
 
-| Workflow             | Runner                                      | Runs                                                                                                                                            |
-| -------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api-tests.yml`      | Ubuntu                                      | Lint, type-check, format check, API tests                                                                                                       |
-| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android                                                                                                                    |
-| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS                                                                                                                        |
-| `mobile-sauce.yml`   | Ubuntu + Sauce Labs real devices            | Mobile suite on Sauce Labs (run manually and when the Sauce Labs setup changes; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets) |
+Each workflow runs only when the files it tests change, and every workflow can also be started by hand
+(_Run workflow_ in the Actions tab).
 
-The mobile workflows run for pull requests, on pushes to `main` and on demand (_Run workflow_ in the
-Actions tab), because emulator and simulator runs are slow. Each workflow uploads its reports (JUnit, HTML, Appium logs, screen recordings) as build artifacts; when a mobile job fails, it also prints a summary of the page source captured at the
-failure. CI
-uses an emulator and a simulator because hosted runners have no physical devices; the configuration is
-the same one used locally against a physical device.
+| Workflow             | Runner                                      | Runs                           | Triggered by                                                                                                                                                                                             |
+| -------------------- | ------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quality.yml`        | Ubuntu                                      | Lint, type-check, format check | Every push and pull request (the checks cover all code)                                                                                                                                                  |
+| `api-tests.yml`      | Ubuntu                                      | API tests                      | Changes to `tests/api/**`, `playwright.config.ts`, `package.json`, `package-lock.json` or the workflow                                                                                                   |
+| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android   | Pull requests and pushes to `main` that change `tests/mobile/**`, the shared or Android WebdriverIO config, the app download or page-source scripts, `package.json`, `package-lock.json` or the workflow |
+| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS       | As for Android, with the iOS config. Manual runs can target one spec or test (`spec`, `grep` inputs)                                                                                                     |
+| `mobile-sauce.yml`   | Ubuntu + Sauce Labs                         | Mobile suite on Sauce Labs     | Changes to the Sauce Labs configs, scripts or workflow, and manual runs; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets                                                                  |
+
+Device runs are slow and costly, so the Android and iOS workflows run only for pull requests and on
+`main`, never on every branch push. Each workflow uploads its reports (JUnit, HTML, Appium logs, screen
+recordings) as build artifacts; when a mobile job fails, it also prints a summary of the page source
+captured at the failure. CI uses an emulator and a simulator because hosted runners have no physical
+devices; the same configuration runs locally against a physical device, and `mobile-sauce.yml` runs it
+on Sauce Labs real devices.
 
 ---
 
