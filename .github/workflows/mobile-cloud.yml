@@ -1,8 +1,8 @@
 name: Mobile tests - Cloud devices
 
 # Runs the mobile suite on a cloud device provider: Sauce Labs or BrowserStack.
-# Choose the provider per run, or set the MOBILE_CLOUD_PROVIDER repository variable
-# (sauce | browserstack; default sauce). Credentials come from repository secrets:
+# Manual runs default to BrowserStack; runs triggered by a push use the MOBILE_CLOUD_PROVIDER
+# repository variable (sauce | browserstack), else BrowserStack. Credentials come from secrets:
 #   Sauce Labs:   SAUCE_USERNAME, SAUCE_ACCESS_KEY (optional variable SAUCE_REGION)
 #   BrowserStack: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY
 on:
@@ -17,10 +17,10 @@ on:
   workflow_dispatch:
     inputs:
       provider:
-        description: Cloud provider (repository-default = MOBILE_CLOUD_PROVIDER variable, else sauce)
+        description: Cloud provider
         type: choice
-        options: [repository-default, sauce, browserstack]
-        default: repository-default
+        options: [browserstack, sauce]
+        default: browserstack
       platform:
         description: Platform to run
         type: choice
@@ -41,11 +41,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROVIDER: ${{ inputs.provider != 'repository-default' && inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'sauce' }}
+  PROVIDER: ${{ inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'browserstack' }}
 
 jobs:
   cloud:
-    name: ${{ inputs.provider != 'repository-default' && inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'sauce' }} (${{ matrix.platform }})
+    name: ${{ inputs.provider || vars.MOBILE_CLOUD_PROVIDER || 'browserstack' }} (${{ matrix.platform }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:

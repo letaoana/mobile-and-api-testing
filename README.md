@@ -77,9 +77,10 @@ iPhones, which need a signed `.ipa` (`npm run browserstack:upload -- <path>.ipa`
 (see `.env.example`).
 
 **In CI** (`mobile-cloud.yml`), add the provider's credentials as repository secrets
-(`SAUCE_USERNAME` + `SAUCE_ACCESS_KEY`, or `BROWSERSTACK_USERNAME` + `BROWSERSTACK_ACCESS_KEY`). Pick
-the provider per run in _Run workflow_, or set the `MOBILE_CLOUD_PROVIDER` repository variable
-(`sauce` or `browserstack`) as the default.
+(`BROWSERSTACK_USERNAME` + `BROWSERSTACK_ACCESS_KEY`, or `SAUCE_USERNAME` + `SAUCE_ACCESS_KEY`).
+_Run workflow_ uses BrowserStack unless you pick Sauce Labs; runs triggered by changes to the cloud
+setup use the `MOBILE_CLOUD_PROVIDER` repository variable (`browserstack` or `sauce`), else
+BrowserStack.
 
 ## Scenarios
 
