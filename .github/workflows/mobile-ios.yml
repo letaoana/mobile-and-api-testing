@@ -28,6 +28,9 @@ on:
       - '.github/workflows/mobile-ios.yml'
   workflow_dispatch:
     inputs:
+      ios-version:
+        description: iOS simulator version
+        default: '26.5'
       spec:
         description: Spec file to run (empty = all specs)
         default: ''
@@ -46,6 +49,7 @@ jobs:
     timeout-minutes: 75
     env:
       RECORD_VIDEO: 'true'
+      IOS_SIMULATOR_VERSION: ${{ inputs.ios-version || '26.5' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -62,16 +66,39 @@ jobs:
       - name: Download the demo app
         run: npm run app:download -- ios
 
-      - name: Pick an available iPhone simulator
+      - name: Select Xcode and an iOS ${{ env.IOS_SIMULATOR_VERSION }} simulator
         run: |
-          DEVICE=$(xcrun simctl list devices available --json \
-            | jq -r '[.devices | to_entries[] | select(.key | test("iOS")) | .key as $rt | .value[]
-                     | select(.name | test("^iPhone [0-9]+$")) | {name, rt: $rt}] | last')
-          NAME=$(echo "$DEVICE" | jq -r '.name')
-          VERSION=$(echo "$DEVICE" | jq -r '.rt' | sed -E 's/.*iOS-([0-9]+)-([0-9]+).*/\1.\2/')
-          echo "Using $NAME (iOS $VERSION)"
+          # The newest installed Xcode supports the newest simulator runtimes.
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version | head -1
+
+          RUNTIME="com.apple.CoreSimulator.SimRuntime.iOS-${IOS_SIMULATOR_VERSION//./-}"
+          has_runtime() {
+            xcrun simctl list runtimes --json \
+              | jq -e --arg id "$RUNTIME" '.runtimes[] | select(.identifier == $id and .isAvailable)' >/dev/null
+          }
+          if ! has_runtime; then
+            echo "Downloading the iOS $IOS_SIMULATOR_VERSION simulator runtime"
+            xcodebuild -downloadPlatform iOS -buildVersion "$IOS_SIMULATOR_VERSION" || true
+          fi
+          if ! has_runtime; then
+            echo "::error::iOS $IOS_SIMULATOR_VERSION simulator runtime is not available on this runner."
+            xcrun simctl list runtimes
+            exit 1
+          fi
+
+          NAME=$(xcrun simctl list devices available --json \
+            | jq -r --arg id "$RUNTIME" '[.devices[$id][]? | select(.name | test("^iPhone [0-9]+$"))] | last | .name // empty')
+          if [ -z "$NAME" ]; then
+            TYPE=$(xcrun simctl list devicetypes --json \
+              | jq -r '[.devicetypes[] | select(.name | test("^iPhone [0-9]+$"))] | last | .identifier')
+            NAME="iPhone $IOS_SIMULATOR_VERSION"
+            xcrun simctl create "$NAME" "$TYPE" "$RUNTIME"
+          fi
+          echo "Using $NAME (iOS $IOS_SIMULATOR_VERSION)"
           echo "IOS_DEVICE_NAME=$NAME" >> "$GITHUB_ENV"
-          echo "IOS_PLATFORM_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "IOS_PLATFORM_VERSION=$IOS_SIMULATOR_VERSION" >> "$GITHUB_ENV"
 
       - name: Prepare WebDriverAgent
         run: npx appium driver run xcuitest build-wda

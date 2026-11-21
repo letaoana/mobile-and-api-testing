@@ -128,13 +128,13 @@ docs/evidence/     test execution evidence (logs, reports, screenshots)
 
 ## Continuous integration
 
-| Workflow             | Runs                                       | When                                                                       |
-| -------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
-| `quality.yml`        | Lint, type-check, format check             | Every push and pull request                                                |
-| `api-tests.yml`      | API tests                                  | Changes to API tests, Playwright config or dependencies                    |
-| `mobile-android.yml` | Mobile suite on an Android emulator        | Pull requests and `main`, when mobile tests, config or dependencies change |
-| `mobile-ios.yml`     | Mobile suite on an iOS simulator           | As for Android; manual runs can target one spec or test (`spec`, `grep`)   |
-| `mobile-cloud.yml`   | Mobile suite on Sauce Labs or BrowserStack | Manually, or when the cloud setup changes                                  |
+| Workflow             | Runs                                       | When                                                                                                             |
+| -------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `quality.yml`        | Lint, type-check, format check             | Every push and pull request                                                                                      |
+| `api-tests.yml`      | API tests                                  | Changes to API tests, Playwright config or dependencies                                                          |
+| `mobile-android.yml` | Mobile suite on an Android emulator        | Pull requests and `main`, when mobile tests, config or dependencies change                                       |
+| `mobile-ios.yml`     | Mobile suite on an iOS 26.5 simulator      | As for Android; manual runs can set the iOS version (`ios-version`) and target one spec or test (`spec`, `grep`) |
+| `mobile-cloud.yml`   | Mobile suite on Sauce Labs or BrowserStack | Manually, or when the cloud setup changes                                                                        |
 
 Every workflow can also be started manually and uploads its reports as artifacts. Badges show the
 latest result on `main`.
