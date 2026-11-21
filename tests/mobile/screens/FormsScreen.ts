@@ -80,30 +80,33 @@ class FormsScreen extends BaseScreen {
       return;
     }
     // On iOS the picker opens from the chevron icon, as a bottom sheet with a picker wheel.
-    const chevron = await this.dropdownChevron.getElement();
-    await chevron.waitForDisplayed();
-    const { width, height } = await chevron.getSize();
-    // x/y are relative to the element: tap its centre with a native touch.
-    await driver.execute('mobile: tap', {
-      elementId: chevron.elementId,
-      x: Math.round(width / 2),
-      y: Math.round(height / 2),
-    });
+    await this.nativeTap(this.dropdownChevron);
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
     await wheel.setValue(option);
     await this.closeIosPicker();
   }
 
-  /** Closes the iOS picker sheet with its Done button, or by tapping above the sheet. */
+  /** Closes the iOS picker sheet with the Done button of its toolbar. */
   private async closeIosPicker(): Promise<void> {
-    const done = $('-ios predicate string:name == "done_button" OR label == "Done"');
-    if (await done.isDisplayed().catch(() => false)) {
-      await done.click();
-    } else {
-      await this.tap($(byText('Form components')));
-    }
+    await this.nativeTap($(byA11yId('done_button')));
     await $('-ios class chain:**/XCUIElementTypePickerWheel').waitForDisplayed({ reverse: true });
+  }
+
+  /**
+   * Taps the centre of an element with XCUITest's native touch. The picker's chevron and
+   * Done button are React Native touchables that ignore XCUITest's element click.
+   */
+  private async nativeTap(selector: ChainablePromiseElement): Promise<void> {
+    const element = await selector.getElement();
+    await element.waitForDisplayed();
+    const { width, height } = await element.getSize();
+    // x/y are relative to the element.
+    await driver.execute('mobile: tap', {
+      elementId: element.elementId,
+      x: Math.round(width / 2),
+      y: Math.round(height / 2),
+    });
   }
 
   get selectedDropdownOption() {
