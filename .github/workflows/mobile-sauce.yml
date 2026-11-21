@@ -53,7 +53,7 @@ jobs:
       SAUCE_ANDROID_DEVICE: ${{ inputs.android-device }}
       SAUCE_ANDROID_VERSION: ${{ inputs.android-version }}
       SAUCE_IOS_VERSION: ${{ inputs.ios-version }}
-      SAUCE_APPIUM_VERSION: ${{ inputs.ios-appium-version }}
+      SAUCE_APPIUM_VERSION: ${{ matrix.platform == 'ios' && inputs.ios-appium-version || '' }}
     steps:
       - uses: actions/checkout@v5
 
