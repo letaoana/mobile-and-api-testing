@@ -33,6 +33,9 @@ class FormsScreen extends BaseScreen {
   private get activeButton() {
     return $(byA11yId('button-Active'));
   }
+  private get dropdownChevron() {
+    return $(byA11yId('dropdown-chevron'));
+  }
   get inactiveButton() {
     return $(byA11yId('button-Inactive'));
   }
@@ -76,21 +79,31 @@ class FormsScreen extends BaseScreen {
       await this.tap($(byText(option)));
       return;
     }
-    // On iOS the picker wrapper is not accessible and ignores element clicks, so tap its
-    // text field through XCUITest's native coordinate tap.
-    const field = await this.dropdownValue.getElement();
-    await field.waitForDisplayed();
-    const { width, height } = await field.getSize();
-    // x/y are relative to the element: tap its centre.
+    // On iOS the picker opens from the chevron icon, as a bottom sheet with a picker wheel.
+    const chevron = await this.dropdownChevron.getElement();
+    await chevron.waitForDisplayed();
+    const { width, height } = await chevron.getSize();
+    // x/y are relative to the element: tap its centre with a native touch.
     await driver.execute('mobile: tap', {
-      elementId: field.elementId,
+      elementId: chevron.elementId,
       x: Math.round(width / 2),
       y: Math.round(height / 2),
     });
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
     await wheel.setValue(option);
-    await this.tap($('~done_button'));
+    await this.closeIosPicker();
+  }
+
+  /** Closes the iOS picker sheet with its Done button, or by tapping above the sheet. */
+  private async closeIosPicker(): Promise<void> {
+    const done = $('-ios predicate string:name == "done_button" OR label == "Done"');
+    if (await done.isDisplayed().catch(() => false)) {
+      await done.click();
+    } else {
+      await this.tap($(byText('Form components')));
+    }
+    await $('-ios class chain:**/XCUIElementTypePickerWheel').waitForDisplayed({ reverse: true });
   }
 
   get selectedDropdownOption() {
