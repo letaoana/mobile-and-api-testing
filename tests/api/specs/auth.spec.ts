@@ -31,7 +31,6 @@ test.describe('POST /auth - create token', () => {
       password: 'wrong-password',
     });
 
-    // The API reports failed logins in the body rather than with a 4xx status.
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect(BadCredentialsResponseSchema.parse(body)).toEqual({ reason: 'Bad credentials' });

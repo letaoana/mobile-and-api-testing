@@ -92,6 +92,7 @@ jobs:
         run: npm ci
 
       - name: Download the demo app
+        if: env.PROVIDER == 'sauce' || matrix.platform == 'android'
         run: npm run app:download -- ${{ matrix.platform }}
 
       - name: Upload the app to the provider

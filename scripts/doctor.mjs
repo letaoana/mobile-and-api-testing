@@ -82,13 +82,18 @@ async function checkApi() {
         'The public API may be down; retry later',
       );
   } catch {
-    warn(`${baseUrl} is not reachable`, 'Check your network or proxy (HTTPS_PROXY is supported)');
+    warn(`${baseUrl} is not reachable`, 'Check your network, or set HTTPS_PROXY behind a proxy');
   }
 }
 
-function checkApp(file, platform) {
-  if (existsSync(join('apps', file))) ok(`App build apps/${file}`);
-  else fail(`App build apps/${file} missing`, `Run: npm run app:download -- ${platform}`);
+function checkApp(pathVariable, file, platform) {
+  const path = process.env[pathVariable] || join('apps', file);
+  if (existsSync(path)) ok(`App build ${path}`);
+  else
+    fail(
+      `App build ${path} missing`,
+      `Run: npm run app:download -- ${platform}, or set ${pathVariable}`,
+    );
 }
 
 function checkAndroid() {
@@ -128,13 +133,20 @@ function checkAndroid() {
       .split('\n')
       .slice(1)
       .map((line) => line.trim().split(/\s+/))
-      .filter(([id]) => id);
+      .filter(([id, state]) => id && /^(device|unauthorized|offline)$/.test(state ?? ''));
     const ready = attached.filter(([, state]) => state === 'device');
     const unauthorized = attached.filter(([, state]) => state === 'unauthorized');
+    const offline = attached.filter(([, state]) => state === 'offline');
     for (const [id] of ready)
       ok(`${id.startsWith('emulator-') ? 'Emulator' : 'Device'} ${id} connected`);
     for (const [id] of unauthorized) {
       fail(`Device ${id} is unauthorized`, 'Unlock the phone and accept the USB debugging prompt');
+    }
+    for (const [id] of offline) {
+      fail(
+        `Device ${id} is offline`,
+        'Reconnect it, or run: adb kill-server, then adb start-server',
+      );
     }
     if (!attached.length) {
       fail(
@@ -145,7 +157,7 @@ function checkAndroid() {
       warn('Several devices connected', 'Set ANDROID_UDID to choose one');
     }
   }
-  checkApp('android.wdio.native.app.apk', 'android');
+  checkApp('ANDROID_APP_PATH', 'android.wdio.native.app.apk', 'android');
 }
 
 function checkIos() {
@@ -159,7 +171,10 @@ function checkIos() {
   }
   const xcode = run('xcodebuild', ['-version']);
   if (!xcode)
-    fail('Xcode not found', 'Install Xcode from the App Store, then run: xcode-select --install');
+    fail(
+      'Xcode not found',
+      'Install Xcode from the App Store, then run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer',
+    );
   else if (atLeast(versionOf(xcode), [16])) ok(xcode.split('\n')[0]);
   else fail(`${xcode.split('\n')[0]} is too old`, 'Update to Xcode 16 or newer');
 
@@ -175,7 +190,7 @@ function checkIos() {
     if (!process.env.IOS_XCODE_ORG_ID)
       fail('IOS_XCODE_ORG_ID is not set', 'Set your Apple development team id');
     const ipa = process.env.IOS_APP_PATH;
-    if (ipa && existsSync(ipa)) ok(`Signed app ${ipa}`);
+    if (ipa?.toLowerCase().endsWith('.ipa') && existsSync(ipa)) ok(`Signed app ${ipa}`);
     else
       fail(
         'IOS_APP_PATH does not point to a signed .ipa',
@@ -184,13 +199,15 @@ function checkIos() {
     return;
   }
   const simulators = run('xcrun', ['simctl', 'list', 'devices', 'available']) ?? '';
-  if (/iPhone/.test(simulators)) ok('iPhone simulator available');
-  else
+  const simulator = process.env.IOS_DEVICE_NAME || 'iPhone 16';
+  if (simulators.includes(`${simulator} (`)) ok(`Simulator "${simulator}" available`);
+  else {
     fail(
-      'No iPhone simulator available',
-      'Xcode → Settings → Components: install an iOS simulator runtime',
+      `Simulator "${simulator}" not available`,
+      'Set IOS_DEVICE_NAME to one listed by "xcrun simctl list devices available", or install a runtime in Xcode → Settings → Components',
     );
-  checkApp('ios.simulator.wdio.native.app.zip', 'ios');
+  }
+  checkApp('IOS_APP_PATH', 'ios.simulator.wdio.native.app.zip', 'ios');
 }
 
 function checkCredentials(name, variables) {
@@ -210,11 +227,11 @@ if (targets.includes('sauce')) {
     ['SAUCE_LABS_USERNAME', 'SAUCE_USERNAME'],
     ['SAUCE_LABS_ACCESS_KEY', 'SAUCE_ACCESS_KEY'],
   ]);
-  checkApp('android.wdio.native.app.apk', 'android');
+  checkApp('ANDROID_APP_PATH', 'android.wdio.native.app.apk', 'android');
 }
 if (targets.includes('browserstack')) {
   checkCredentials('BrowserStack', [['BROWSERSTACK_USERNAME'], ['BROWSERSTACK_ACCESS_KEY']]);
-  checkApp('android.wdio.native.app.apk', 'android');
+  checkApp('ANDROID_APP_PATH', 'android.wdio.native.app.apk', 'android');
 }
 
 console.log(

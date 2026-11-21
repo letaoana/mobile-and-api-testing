@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Uploads app builds to BrowserStack App Automate under a stable custom id, which the
- * BrowserStack configs use as `appium:app`. An app already stored under that id is not
- * uploaded again.
+ * Uploads app builds to BrowserStack App Automate under a custom id per platform and app
+ * version (APP_VERSION), which the BrowserStack configs use as `appium:app`. An id that is
+ * already stored is skipped; pass --force to replace it with a rebuilt app.
  *
  * Usage:
  *   npm run browserstack:upload                    # Android APK from ./apps
  *   npm run browserstack:upload -- ./apps/my.ipa   # signed iOS build (real devices only)
+ *   npm run browserstack:upload -- --force         # upload again
  */
 import { existsSync, openAsBlob } from 'node:fs';
 import { basename, extname, resolve } from 'node:path';
@@ -26,7 +27,8 @@ const version = process.env.APP_VERSION || 'v2.2.0';
 const api = 'https://api-cloud.browserstack.com/app-automate';
 const auth = `Basic ${Buffer.from(`${user}:${key}`).toString('base64')}`;
 
-const requested = process.argv.slice(2);
+const force = process.argv.includes('--force');
+const requested = process.argv.slice(2).filter((arg) => arg !== '--force');
 const files = (requested.length ? requested : ['android']).map((arg) => {
   if (arg === 'android') return resolve('apps/android.wdio.native.app.apk');
   if (arg === 'ios') {
@@ -54,7 +56,7 @@ for (const file of files) {
     headers: { Authorization: auth },
   });
   const stored = existing.ok ? await existing.json() : [];
-  if (Array.isArray(stored) && stored.length > 0) {
+  if (!force && Array.isArray(stored) && stored.length > 0) {
     console.log(`✔ ${basename(file)} already on BrowserStack as "${customId}"; upload skipped`);
     continue;
   }

@@ -8,7 +8,7 @@
     "node": ">=22.22.2"
   },
   "scripts": {
-    "doctor": "node scripts/doctor.mjs",
+    "doctor": "node --use-env-proxy scripts/doctor.mjs",
     "app:download": "node scripts/download-app.mjs",
     "appium:doctor": "appium driver doctor uiautomator2",
     "test:android": "wdio run config/wdio.android.conf.ts",

@@ -8,7 +8,7 @@ describe('Login', () => {
   const user = newUser();
 
   before(async () => {
-    // Log in with credentials that were signed up first.
+    // Sign up first so the login uses registered credentials.
     await TabBar.waitForTabBarShown();
     await TabBar.open('Login');
     await LoginScreen.signUp(user);

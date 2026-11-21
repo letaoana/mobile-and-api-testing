@@ -93,6 +93,7 @@ class FormsScreen extends BaseScreen {
     const element = await selector.getElement();
     await element.waitForDisplayed();
     const { width, height } = await element.getSize();
+    // mobile: tap takes x/y relative to the element.
     await driver.execute('mobile: tap', {
       elementId: element.elementId,
       x: Math.round(width / 2),

@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { env, envOr } from './env.ts';
 import { buildName, cloudConfig } from './wdio.cloud.shared.conf.ts';
 
@@ -33,13 +34,14 @@ export const browserStackConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
 
   // BrowserStack has no WebdriverIO 10 service, so name the session and report its
   // result through BrowserStack's executor commands.
-  async beforeSuite(suite) {
-    await executor('setSessionName', { name: suite.title }).catch(() => undefined);
+  async before(_capabilities, specs) {
+    const name = basename(specs[0] ?? 'mobile tests');
+    await executor('setSessionName', { name }).catch(() => undefined);
   },
-  async after(failures) {
+  async after(result) {
     await executor('setSessionStatus', {
-      status: failures === 0 ? 'passed' : 'failed',
-      reason: failures === 0 ? '' : `${failures} test(s) failed`,
+      status: result === 0 ? 'passed' : 'failed',
+      reason: result === 0 ? '' : 'Tests failed',
     }).catch(() => undefined);
   },
 };

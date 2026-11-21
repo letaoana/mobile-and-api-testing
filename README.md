@@ -43,16 +43,19 @@ ANDROID_UDID=R58N12ABCDE npm run test:android                      # macOS / Lin
 $env:ANDROID_UDID="R58N12ABCDE"; npm run test:android              # Windows PowerShell
 ```
 
-**Android setup tips.** `ANDROID_HOME` is usually `~/Library/Android/sdk` (macOS) or
-`%LOCALAPPDATA%\Android\Sdk` (Windows). Create an emulator in Android Studio → Device Manager, or
-plug in a phone and accept the USB debugging prompt; `adb devices` must list it.
+**Android setup.** Point `ANDROID_HOME` at the SDK (usually `~/Library/Android/sdk` on macOS,
+`%LOCALAPPDATA%\Android\Sdk` on Windows) and `JAVA_HOME` at the JDK, and add the SDK's
+`platform-tools` folder to `PATH` so `adb` works. On Windows, set them permanently in _System
+Properties → Environment Variables_ (or with `setx`), then open a new terminal. Create an emulator in
+Android Studio → Device Manager, or plug in a phone and accept the USB debugging prompt; `adb devices`
+must list it. With nvm-windows, install the version in `.nvmrc` explicitly (`nvm install 22`).
 
 **More ways to run**
 
 ```bash
 npm run test:android -- --suite auth                               # suites: auth | forms | gestures
 npm run test:android -- --spec tests/mobile/specs/swipe.spec.ts    # one spec file
-RECORD_VIDEO=true npm run test:android                             # keep a video of every test
+RECORD_VIDEO=true npm run test:android                             # keep a video of every test (or set it in .env)
 ```
 
 **Physical iPhone:** the published iOS build only runs on simulators. Build and sign the app from its
@@ -67,7 +70,8 @@ The same tests run on either provider; switching needs no code changes.
 | Sauce Labs   | `SAUCE_LABS_USERNAME`, `SAUCE_LABS_ACCESS_KEY`     | `npm run sauce:upload`        | `npm run test:sauce:android` / `test:sauce:ios` (simulator)   |
 | BrowserStack | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY` | `npm run browserstack:upload` | `npm run test:browserstack:android` / `test:browserstack:ios` |
 
-Uploads are skipped when the provider already has the build. Android runs on real devices with both
+Uploads are skipped when the provider already has the build (BrowserStack: same app version; add
+`-- --force` to replace a rebuilt app). Android runs on real devices with both
 providers. For iOS, Sauce Labs uses a simulator by default, while BrowserStack only offers real
 iPhones, which need a signed `.ipa` (`npm run browserstack:upload -- <path>.ipa`, then set
 `BROWSERSTACK_IOS_APP`). Device and OS version are set with `SAUCE_*` / `BROWSERSTACK_*` variables

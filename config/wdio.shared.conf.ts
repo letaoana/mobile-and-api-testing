@@ -51,7 +51,7 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
     [
       'appium',
       {
-        // Appium and its drivers are project dependencies.
+        // `appium` resolves to the project's own Appium (node_modules/.bin) under npm run.
         command: 'appium',
         logPath: REPORTS_DIR,
         args: { relaxedSecurity: false, logTimestamp: true },
