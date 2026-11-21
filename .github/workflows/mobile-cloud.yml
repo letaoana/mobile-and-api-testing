@@ -105,10 +105,12 @@ jobs:
         run: node scripts/sauce-list-platforms.mjs
 
       - name: Run tests
+        id: tests
         run: npm run test:${{ env.PROVIDER }}:${{ matrix.platform }}
 
       - name: Summarise failure page sources
-        if: failure()
+        # Only meaningful when the tests ran and failed.
+        if: failure() && steps.tests.conclusion == 'failure'
         run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
 
       - name: Upload mobile report
