@@ -1,0 +1,84 @@
+Mobile tests - Sauce Labs (Android) | GitHub Actions run 44937782282 | Sauce Labs real Android devices, eu-central-1
+https://github.com/letaoana/mobile-and-api-testing/actions/runs/44937782282
+Each spec file ran on its own real device; the Sauce Labs job links below show the device, video and logs.
+
+> wdio run config/wdio.sauce.android.conf.ts
+
+
+Execution of 5 workers started at 2026-11-21T18:51:55.720Z
+
+[0-1] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-0] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-0] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/drag.spec.ts
+[0-2] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-1] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-3] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-3] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/signup.spec.ts
+[0-4] RUNNING in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+[0-2] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/login.spec.ts
+[0-4] PASSED in Android on Android - file:///home/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/swipe.spec.ts
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[Android #0-0] Running: on Android
+[Android #0-0] Session ID: e6531f19-e8a0-46ac-bced-86a605614689
+[Android #0-0]
+[Android #0-0] » tests/mobile/specs/drag.spec.ts
+[Android #0-0] Drag and drop
+[Android #0-0]    ✓ completes the puzzle and can start over
+[Android #0-0]
+[Android #0-0] 1 passing (35.2s)
+[Android #0-0]
+[Android #0-0] Check out job at https://app.eu-central-1.saucelabs.com/tests/9c3cb6455e5142dda19b33424a758de9
+------------------------------------------------------------------
+[Android #0-1] Running: on Android
+[Android #0-1] Session ID: aee4e48a-60f3-4f2c-bf2f-846d37ac91a9
+[Android #0-1]
+[Android #0-1] » tests/mobile/specs/forms.spec.ts
+[Android #0-1] Forms
+[Android #0-1]    ✓ fills in every field, submits the form and shows the result
+[Android #0-1]    ✓ turns the switch back off on a second tap
+[Android #0-1]
+[Android #0-1] 2 passing (33.9s)
+[Android #0-1]
+[Android #0-1] Check out job at https://app.eu-central-1.saucelabs.com/tests/fbccf2f8f58343829dc8ecc5edd0c486
+------------------------------------------------------------------
+[Android #0-3] Running: on Android
+[Android #0-3] Session ID: b7f37eb3-ec9b-4b0a-8642-35bb7c1d4284
+[Android #0-3]
+[Android #0-3] » tests/mobile/specs/signup.spec.ts
+[Android #0-3] Sign up
+[Android #0-3]    ✓ creates a new account with a valid email and matching passwords
+[Android #0-3]    ✓ rejects the sign up when the passwords do not match
+[Android #0-3]
+[Android #0-3] 2 passing (41.5s)
+[Android #0-3]
+[Android #0-3] Check out job at https://app.eu-central-1.saucelabs.com/tests/d8e10dfe842a40d8b565406586a85c57
+------------------------------------------------------------------
+[Android #0-2] Running: on Android
+[Android #0-2] Session ID: a7eb13b1-752c-4c1e-b988-06fbef74ad0f
+[Android #0-2]
+[Android #0-2] » tests/mobile/specs/login.spec.ts
+[Android #0-2] Login
+[Android #0-2]    ✓ logs in with valid credentials
+[Android #0-2]    ✓ shows an error message when the password is wrong
+[Android #0-2]    ✓ shows an error message when the email address is invalid
+[Android #0-2]
+[Android #0-2] 3 passing (1m 14.3s)
+[Android #0-2]
+[Android #0-2] Check out job at https://app.eu-central-1.saucelabs.com/tests/0337321c567747008a6c99fce6ee5280
+------------------------------------------------------------------
+[Android #0-4] Running: on Android
+[Android #0-4] Session ID: 1ab60167-9f44-43a6-9cd9-9074a583b10a
+[Android #0-4]
+[Android #0-4] » tests/mobile/specs/swipe.spec.ts
+[Android #0-4] Swipe
+[Android #0-4]    ✓ moves the carousel to the next and previous slide
+[Android #0-4]    ✓ reveals the hidden content after scrolling down
+[Android #0-4]
+[Android #0-4] 2 passing (1m 15s)
+[Android #0-4]
+[Android #0-4] Check out job at https://app.eu-central-1.saucelabs.com/tests/b5349509ff1349ac9c955bc73eaa27dc
+
+
+Spec Files:	 5 passed, 5 total (100% completed) in 00:07:04  
