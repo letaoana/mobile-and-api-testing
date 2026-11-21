@@ -4,6 +4,12 @@ name: Mobile tests - Sauce Labs
 # (or real iPhones when a signed .ipa is provided). Needs the repository secrets
 # SAUCE_USERNAME and SAUCE_ACCESS_KEY.
 on:
+  # Also runs when the Sauce Labs setup itself changes.
+  push:
+    paths:
+      - 'config/wdio.sauce.*'
+      - 'scripts/sauce-upload-app.mjs'
+      - '.github/workflows/mobile-sauce.yml'
   workflow_dispatch:
     inputs:
       platform:
@@ -30,7 +36,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ inputs.platform == 'both' && fromJSON('["android","ios"]') || fromJSON(format('["{0}"]', inputs.platform)) }}
+        # Push runs (no inputs) cover both platforms.
+        platform: ${{ (inputs.platform || 'both') == 'both' && fromJSON('["android","ios"]') || fromJSON(format('["{0}"]', inputs.platform)) }}
     env:
       SAUCE_LABS_USERNAME: ${{ secrets.SAUCE_USERNAME }}
       SAUCE_LABS_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}

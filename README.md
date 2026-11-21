@@ -284,12 +284,12 @@ Reports: HTML in `reports/api/html`, JUnit in `reports/api/junit/results.xml`.
 
 ## Continuous integration
 
-| Workflow             | Runner                                      | Runs                                                                                                      |
-| -------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `api-tests.yml`      | Ubuntu                                      | Lint, type-check, format check, API tests                                                                 |
-| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android                                                                              |
-| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS                                                                                  |
-| `mobile-sauce.yml`   | Ubuntu + Sauce Labs real devices            | Mobile suite on Sauce Labs (run manually; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets) |
+| Workflow             | Runner                                      | Runs                                                                                                                                            |
+| -------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api-tests.yml`      | Ubuntu                                      | Lint, type-check, format check, API tests                                                                                                       |
+| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android                                                                                                                    |
+| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS                                                                                                                        |
+| `mobile-sauce.yml`   | Ubuntu + Sauce Labs real devices            | Mobile suite on Sauce Labs (run manually and when the Sauce Labs setup changes; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets) |
 
 The mobile workflows run for pull requests, on pushes to `main` and on demand (_Run workflow_ in the
 Actions tab), because emulator and simulator runs are slow. Each workflow uploads its reports (JUnit, HTML, Appium logs, screen recordings) as build artifacts; when a mobile job fails, it also prints a summary of the page source captured at the
