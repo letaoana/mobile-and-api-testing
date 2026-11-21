@@ -1,49 +1,82 @@
 # Mobile & API Test Automation
 
+[![Mobile tests](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile.yml)
+[![Android](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-android.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-android.yml)
+[![iOS](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-ios.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/mobile-ios.yml)
+[![API tests](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/api-tests.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/api-tests.yml)
+[![Quality checks](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/letaoana/mobile-and-api-testing/actions/workflows/quality.yml)
+
 TypeScript test automation for the
 [WebdriverIO Native Demo App](https://github.com/webdriverio/native-demo-app) (WebdriverIO 10 +
 Appium 4, Mocha) and the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html)
 (Playwright `APIRequestContext` + Zod). Android and iOS share the same specs and screen objects; only
 the capabilities differ.
 
-## Quick start
+## Getting started
 
-Prerequisites: Node.js 22.22.2+ (`.nvmrc`). For Android: JDK 17+, Android SDK platform-tools with
-`ANDROID_HOME` set, and a device with USB debugging on (`adb devices` lists it). For iOS: macOS with
-Xcode 16+. Appium and its drivers are project dependencies and start automatically.
+| You want to run    | You need                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| API tests          | Node.js 22.22.2+ (`.nvmrc`), on macOS, Windows or Linux                                                       |
+| Android tests      | JDK 17+, Android SDK platform-tools with `ANDROID_HOME` set, and a phone with USB debugging on or an emulator |
+| iOS tests          | macOS with Xcode 16+ and an iOS simulator runtime (a physical iPhone also needs a signed build, see below)    |
+| Cloud real devices | A Sauce Labs or BrowserStack account; nothing installed beyond Node.js                                        |
 
 ```bash
-npm ci
-npm run app:download          # demo app builds into ./apps (add `-- android` for Android only)
+npm ci                        # install dependencies (Appium and its drivers included)
+npm run doctor                # check prerequisites; lists anything missing and how to fix it
+npm run app:download          # demo app builds into ./apps
 
-npm run test:api              # API tests (no browser needed); report: npm run test:api:report
-npm run test:android          # connected Android device or emulator
-npm run test:ios              # iOS simulator
+npm run test:api              # API tests; HTML report: npm run test:api:report
+npm run test:android          # connected Android phone or running emulator
+npm run test:ios              # iOS simulator (macOS only)
 ```
 
-Everything is configured through environment variables with sensible defaults; copy `.env.example` to
-`.env` to override them (device UDID, app path, platform version, Sauce Labs settings, API host).
+`npm run doctor -- android` (or `api`, `ios`, `sauce`, `browserstack`) checks one target. It only
+reports what is missing; it never installs anything.
 
-**Useful variations**
+**Settings** come from environment variables with working defaults. The portable way to set them on
+any OS is a `.env` file: copy `.env.example` to `.env` and fill in what you need (device UDID, app
+path, platform version, cloud credentials, API host). Inline variables differ per shell:
 
 ```bash
-ANDROID_UDID=R58N12ABCDE npm run test:android                 # pick a device
-npm run test:android -- --suite auth                          # suites: auth | forms | gestures
-npm run test:android -- --spec tests/mobile/specs/swipe.spec.ts
-RECORD_VIDEO=true npm run test:android                        # keep a video of every test
+ANDROID_UDID=R58N12ABCDE npm run test:android                      # macOS / Linux
+$env:ANDROID_UDID="R58N12ABCDE"; npm run test:android              # Windows PowerShell
 ```
 
-**Sauce Labs real devices** (credentials: `SAUCE_LABS_USERNAME`, `SAUCE_LABS_ACCESS_KEY`):
+**Android setup tips.** `ANDROID_HOME` is usually `~/Library/Android/sdk` (macOS) or
+`%LOCALAPPDATA%\Android\Sdk` (Windows). Create an emulator in Android Studio → Device Manager, or
+plug in a phone and accept the USB debugging prompt; `adb devices` must list it.
+
+**More ways to run**
 
 ```bash
-npm run sauce:upload          # uploads ./apps to Sauce Labs storage; skips builds already stored
-npm run test:sauce:android    # any available real Android device (SAUCE_ANDROID_DEVICE to pin one)
-npm run test:sauce:ios        # Sauce Labs iOS simulator
-node scripts/sauce-list-platforms.mjs   # devices and versions the account can use
+npm run test:android -- --suite auth                               # suites: auth | forms | gestures
+npm run test:android -- --spec tests/mobile/specs/swipe.spec.ts    # one spec file
+RECORD_VIDEO=true npm run test:android                             # keep a video of every test
 ```
 
 **Physical iPhone:** the published iOS build only runs on simulators. Build and sign the app from its
-source, then run with `IOS_UDID`, `IOS_APP_PATH` (the `.ipa`) and `IOS_XCODE_ORG_ID` set.
+source, then set `IOS_UDID`, `IOS_APP_PATH` (the `.ipa`) and `IOS_XCODE_ORG_ID`.
+
+## Cloud real devices: Sauce Labs or BrowserStack
+
+The same tests run on either provider; switching needs no code changes.
+
+| Provider     | Credentials                                        | Upload the app                | Run                                                           |
+| ------------ | -------------------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
+| Sauce Labs   | `SAUCE_LABS_USERNAME`, `SAUCE_LABS_ACCESS_KEY`     | `npm run sauce:upload`        | `npm run test:sauce:android` / `test:sauce:ios` (simulator)   |
+| BrowserStack | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY` | `npm run browserstack:upload` | `npm run test:browserstack:android` / `test:browserstack:ios` |
+
+Uploads are skipped when the provider already has the build. Android runs on real devices with both
+providers. For iOS, Sauce Labs uses a simulator by default, while BrowserStack only offers real
+iPhones, which need a signed `.ipa` (`npm run browserstack:upload -- <path>.ipa`, then set
+`BROWSERSTACK_IOS_APP`). Device and OS version are set with `SAUCE_*` / `BROWSERSTACK_*` variables
+(see `.env.example`).
+
+**In CI** (`mobile-cloud.yml`), add the provider's credentials as repository secrets
+(`SAUCE_USERNAME` + `SAUCE_ACCESS_KEY`, or `BROWSERSTACK_USERNAME` + `BROWSERSTACK_ACCESS_KEY`). Pick
+the provider per run in _Run workflow_, or set the `MOBILE_CLOUD_PROVIDER` repository variable
+(`sauce` or `browserstack`) as the default.
 
 ## Scenarios
 
@@ -81,26 +114,27 @@ lists and boards in real apps.
 ## Project layout
 
 ```
-config/            WebdriverIO configs (shared, Android, iOS, Sauce Labs) and env loading
+config/            WebdriverIO configs: shared, Android, iOS, cloud (Sauce Labs, BrowserStack)
 tests/mobile/      specs/, screens/ (screen objects), helpers/, data/
 tests/api/         specs/, clients/, fixtures/, schemas/ (Zod), data/
-scripts/           app download, Sauce Labs upload and platform listing, CI failure summaries
+scripts/           doctor, app download, cloud uploads, Sauce Labs platform list, CI failure summaries
 docs/evidence/     test execution evidence (logs, reports, screenshots)
 .github/workflows/ CI pipelines
 ```
 
 ## Continuous integration
 
-| Workflow             | Runs                                    | When                                                                       |
-| -------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
-| `quality.yml`        | Lint, type-check, format check          | Every push and pull request                                                |
-| `api-tests.yml`      | API tests                               | Changes to API tests, Playwright config or dependencies                    |
-| `mobile-android.yml` | Mobile suite on an Android emulator     | Pull requests and `main`, when mobile tests, config or dependencies change |
-| `mobile-ios.yml`     | Mobile suite on an iOS simulator        | As for Android; manual runs can target one spec or test (`spec`, `grep`)   |
-| `mobile-sauce.yml`   | Mobile suite on Sauce Labs real devices | Manually, or when the Sauce Labs setup changes                             |
+| Workflow             | Runs                                       | When                                                                       |
+| -------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
+| `quality.yml`        | Lint, type-check, format check             | Every push and pull request                                                |
+| `api-tests.yml`      | API tests                                  | Changes to API tests, Playwright config or dependencies                    |
+| `mobile-android.yml` | Mobile suite on an Android emulator        | Pull requests and `main`, when mobile tests, config or dependencies change |
+| `mobile-ios.yml`     | Mobile suite on an iOS simulator           | As for Android; manual runs can target one spec or test (`spec`, `grep`)   |
+| `mobile.yml`         | Overall mobile status (Android and iOS)    | After each Android or iOS run                                              |
+| `mobile-cloud.yml`   | Mobile suite on Sauce Labs or BrowserStack | Manually, or when the cloud setup changes                                  |
 
-Every workflow can also be started manually and uploads its reports as artifacts. `mobile-sauce.yml`
-needs the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` repository secrets.
+Every workflow can also be started manually and uploads its reports as artifacts. Badges show the
+latest result on `main`.
 
 ## Results and known limitations
 
@@ -116,5 +150,7 @@ test passing on the CI simulator.
 - **iOS on Sauce Labs.** iOS simulators are no longer in the Sauce Labs plan used here; iOS 26.5 passed
   9/10 there before the dropdown fix. On iOS 26.1, keystrokes for the first password field land in the
   confirm field.
+- **BrowserStack** is supported through its standard WebDriver hub (it has no WebdriverIO 10 service
+  yet) and has not been run against a BrowserStack account for this project.
 - **Restful Booker is a shared public sandbox.** It resets periodically and can be slow; CI retries a
   failed API test once.

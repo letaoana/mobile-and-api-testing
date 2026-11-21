@@ -1,7 +1,6 @@
 import type { APIRequestContext, APIResponse } from '@playwright/test';
 import type { Booking } from '../schemas/booker.schemas.ts';
 
-/** Thin wrapper around the `/booking` endpoints. */
 export class BookingClient {
   constructor(private readonly request: APIRequestContext) {}
 

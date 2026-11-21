@@ -8,7 +8,7 @@ describe('Login', () => {
   const user = newUser();
 
   before(async () => {
-    // Register the account first so the login uses credentials that were signed up.
+    // Log in with credentials that were signed up first.
     await TabBar.waitForTabBarShown();
     await TabBar.open('Login');
     await LoginScreen.signUp(user);
@@ -40,15 +40,13 @@ describe('Login', () => {
     await LoginScreen.login({ ...user, password: WRONG_PASSWORD });
 
     await expect(LoginScreen.validationError(LOGIN_ERRORS.invalidPassword)).toBeDisplayed();
-    // The app shows its result alert after a 1.5 s simulated request, so wait longer than that.
-    expect(await NativeAlert.appearsWithin(3_000)).toBe(false);
+    expect(await NativeAlert.appearsAfterSubmit()).toBe(false);
   });
 
   it('shows an error message when the email address is invalid', async () => {
     await LoginScreen.login({ ...user, email: 'not-an-email' });
 
     await expect(LoginScreen.validationError(LOGIN_ERRORS.invalidEmail)).toBeDisplayed();
-    // The app shows its result alert after a 1.5 s simulated request, so wait longer than that.
-    expect(await NativeAlert.appearsWithin(3_000)).toBe(false);
+    expect(await NativeAlert.appearsAfterSubmit()).toBe(false);
   });
 });

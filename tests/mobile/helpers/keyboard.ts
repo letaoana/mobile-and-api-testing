@@ -1,7 +1,3 @@
-/**
- * Hides the on-screen keyboard if it is open so it cannot cover the element
- * the test wants to tap next.
- */
 export async function hideKeyboardIfShown(): Promise<void> {
   if (!(await driver.isKeyboardShown())) {
     return;
@@ -10,8 +6,7 @@ export async function hideKeyboardIfShown(): Promise<void> {
     await driver.hideKeyboard();
     return;
   }
-  // The app's keyboards have no "Done" key, so tap the empty margin beside the form:
-  // React Native scroll views dismiss the keyboard on a tap outside an input.
+  // The app's iOS keyboards have no Done key; a tap beside the form dismisses them.
   const { height } = await driver.getWindowSize();
   await driver
     .action('pointer', { parameters: { pointerType: 'touch' } })

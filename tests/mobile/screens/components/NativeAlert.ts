@@ -1,10 +1,4 @@
-/**
- * Wraps the platform's native alert dialog (Android AlertDialog / iOS UIAlertController).
- *
- * React Native renders an AppCompat AlertDialog on Android and replaces the title with
- * its own view (`alert_title`), so resource ids are matched on their suffix and both
- * the framework and React Native title ids are accepted.
- */
+// Android alerts are AppCompat dialogs whose title React Native replaces with `alert_title`.
 const androidId = (idPattern: string): string =>
   `android=new UiSelector().resourceIdMatches(".*:id/(${idPattern})$")`;
 
@@ -33,20 +27,16 @@ class NativeAlert {
     await this.container.waitForDisplayed({ reverse: !isShown, timeout });
   }
 
-  /**
-   * Returns true if the alert appears within `timeout`. Used by negative tests to
-   * prove that no alert shows up, allowing for the app's simulated request delay.
-   */
-  async appearsWithin(timeout: number): Promise<boolean> {
+  /** The app shows its result after a 1.5 s simulated request, so wait a little longer than that. */
+  async appearsAfterSubmit(): Promise<boolean> {
     try {
-      await this.container.waitForDisplayed({ timeout });
+      await this.container.waitForDisplayed({ timeout: 3_000 });
       return true;
     } catch {
       return false;
     }
   }
 
-  /** Returns the alert title and message. */
   async getContent(): Promise<{ title: string; message: string }> {
     await this.waitForIsShown();
     if (driver.isAndroid) {
@@ -60,7 +50,6 @@ class NativeAlert {
     return { title, message: rest.join('\n') };
   }
 
-  /** Closes an alert left open by a failed step so the next test starts clean. */
   async dismissIfShown(): Promise<void> {
     if (await this.container.isDisplayed().catch(() => false)) {
       await this.tapButton('OK').catch(() => driver.back());

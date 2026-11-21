@@ -3,9 +3,8 @@ import { env, envOr } from './env.ts';
 import { sharedConfig } from './wdio.shared.conf.ts';
 
 /**
- * iOS runs on a simulator by default because the published demo build is a
- * simulator build. Setting IOS_UDID switches to a physical device, which needs
- * a signed .ipa (IOS_APP_PATH) and a development team (IOS_XCODE_ORG_ID).
+ * The published demo app is a simulator build, so iOS runs on a simulator by default.
+ * IOS_UDID switches to a physical iPhone, which needs a signed .ipa and IOS_XCODE_ORG_ID.
  */
 const udid = env('IOS_UDID');
 const platformVersion = env('IOS_PLATFORM_VERSION');

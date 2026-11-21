@@ -9,7 +9,6 @@ export const DROPDOWN_OPTIONS = [
 ] as const;
 export type DropdownOption = (typeof DROPDOWN_OPTIONS)[number];
 
-/** "Form components" screen: text input, switch, dropdown and buttons. */
 class FormsScreen extends BaseScreen {
   constructor() {
     super(byA11yId('Forms-screen'));
@@ -40,7 +39,6 @@ class FormsScreen extends BaseScreen {
     return $(byA11yId('button-Inactive'));
   }
 
-  /** The text field inside the dropdown that shows the selected option. */
   private get dropdownValue() {
     return driver.isAndroid
       ? this.dropdown.$('android.widget.EditText')
@@ -56,7 +54,6 @@ class FormsScreen extends BaseScreen {
     await this.tap(this.switchToggle);
   }
 
-  /** Waits until the switch reports the expected state. */
   async waitForSwitchState(on: boolean): Promise<void> {
     await driver.waitUntil(async () => (await this.isSwitchOn()) === on, {
       timeout: 5_000,
@@ -65,7 +62,7 @@ class FormsScreen extends BaseScreen {
   }
 
   async isSwitchOn(): Promise<boolean> {
-    // Android reports the state through the `checked` attribute, iOS through `value` ("1"/"0").
+    // Android exposes the state as `checked`, iOS as `value` ("1"/"0").
     const value = driver.isAndroid
       ? await this.switchToggle.getAttribute('checked')
       : await this.switchToggle.getAttribute('value');
@@ -75,11 +72,10 @@ class FormsScreen extends BaseScreen {
   async selectDropdownOption(option: DropdownOption): Promise<void> {
     if (driver.isAndroid) {
       await this.tap(this.dropdown);
-      // Non-native Android picker style opens a dialog with one row per option.
       await this.tap($(byText(option)));
       return;
     }
-    // On iOS the picker opens from the chevron icon, as a bottom sheet with a picker wheel.
+    // On iOS the picker sheet opens from the chevron icon, not from the field.
     await this.nativeTap(this.dropdownChevron);
     const wheel = $('-ios class chain:**/XCUIElementTypePickerWheel');
     await wheel.waitForDisplayed();
@@ -87,21 +83,16 @@ class FormsScreen extends BaseScreen {
     await this.closeIosPicker();
   }
 
-  /** Closes the iOS picker sheet with the Done button of its toolbar. */
   private async closeIosPicker(): Promise<void> {
     await this.nativeTap($(byA11yId('done_button')));
     await $('-ios class chain:**/XCUIElementTypePickerWheel').waitForDisplayed({ reverse: true });
   }
 
-  /**
-   * Taps the centre of an element with XCUITest's native touch. The picker's chevron and
-   * Done button are React Native touchables that ignore XCUITest's element click.
-   */
+  /** The picker's chevron and Done button ignore XCUITest's element click but take a native tap. */
   private async nativeTap(selector: ChainablePromiseElement): Promise<void> {
     const element = await selector.getElement();
     await element.waitForDisplayed();
     const { width, height } = await element.getSize();
-    // x/y are relative to the element.
     await driver.execute('mobile: tap', {
       elementId: element.elementId,
       x: Math.round(width / 2),

@@ -1,12 +1,9 @@
 import { env, envOr } from './env.ts';
 import { sauceConfig, sauceOptions } from './wdio.sauce.shared.conf.ts';
 
-/**
- * Android on Sauce Labs real devices. `appium:deviceName` accepts a regular expression,
- * so any available device that matches is allocated (default: any Android device).
- * SAUCE_ANDROID_VERSION pins the Android version; leave it empty for any version.
- */
+// deviceName is a regular expression: any available real device that matches is allocated.
 const platformVersion = env('SAUCE_ANDROID_VERSION');
+
 export const config: WebdriverIO.Config = {
   ...sauceConfig,
   capabilities: [

@@ -16,12 +16,7 @@ async function getRect(element: WebdriverIO.Element): Promise<Rect | undefined> 
   return { x, y, width, height };
 }
 
-/**
- * Horizontal distance between the element's centre and the screen's centre, or
- * `undefined` when the element does not exist. Native carousels keep neighbouring
- * slides in the view hierarchy, so the slide closest to the centre is the one
- * the user is looking at.
- */
+/** Carousels keep neighbouring slides in the view tree; the visible one is closest to the centre. */
 export async function distanceFromScreenCentreX(
   element: WebdriverIO.Element,
 ): Promise<number | undefined> {
@@ -33,10 +28,7 @@ export async function distanceFromScreenCentreX(
   return Math.abs(rect.x + rect.width / 2 - width / 2);
 }
 
-/**
- * True when the element's centre lies inside the visible screen. Used instead of
- * `isDisplayed()` because XCUITest can report off-screen scroll content as visible.
- */
+/** Used instead of isDisplayed(): XCUITest can report off-screen scroll content as visible. */
 export async function isInViewport(element: WebdriverIO.Element): Promise<boolean> {
   const rect = await getRect(element);
   if (!rect) {

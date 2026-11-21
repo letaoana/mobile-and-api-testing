@@ -37,7 +37,6 @@ describe('Forms', () => {
     });
     await NativeAlert.tapButton('OK');
 
-    // The submitted values are kept after the dialog is closed.
     await expect(FormsScreen.typedTextResult).toHaveText(text);
     await expect(FormsScreen.selectedDropdownOption).toHaveText(option);
   });

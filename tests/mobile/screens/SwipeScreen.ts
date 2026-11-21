@@ -2,7 +2,6 @@ import { byA11yId, byText } from '../helpers/selectors.ts';
 import { distanceFromScreenCentreX, isInViewport } from '../helpers/viewport.ts';
 import BaseScreen from './BaseScreen.ts';
 
-/** Carousel slides, in the order the app renders them. Titles are upper-cased by the app. */
 export const CAROUSEL_SLIDES = [
   'FULLY OPEN SOURCE',
   'GREAT COMMUNITY',
@@ -12,7 +11,6 @@ export const CAROUSEL_SLIDES = [
   'COMPATIBLE',
 ] as const;
 
-/** Swipe screen: a horizontal carousel plus hidden content further down the page. */
 class SwipeScreen extends BaseScreen {
   constructor() {
     super(byA11yId('Swipe-screen'));
@@ -34,7 +32,6 @@ class SwipeScreen extends BaseScreen {
     return $(byText(title));
   }
 
-  /** Returns the title of the slide closest to the centre of the screen. */
   async getVisibleSlideTitle(): Promise<string | undefined> {
     let closest: { title: string; distance: number } | undefined;
     for (const title of CAROUSEL_SLIDES) {
@@ -54,8 +51,7 @@ class SwipeScreen extends BaseScreen {
     const before = await this.getVisibleSlideTitle();
     const carousel = await this.carousel.getElement();
     if (driver.isAndroid) {
-      // The carousel listens through react-native-gesture-handler, which reliably
-      // receives UiAutomator2's native swipe but not a synthesised W3C pointer swipe.
+      // The carousel's gesture handler ignores synthesised W3C swipes on Android.
       await driver.execute('mobile: swipeGesture', {
         elementId: carousel.elementId,
         direction,
@@ -64,13 +60,11 @@ class SwipeScreen extends BaseScreen {
     } else {
       await driver.swipe({ direction, scrollableElement: carousel, percent: 0.8, duration: 600 });
     }
-    // Wait until the carousel has settled on a different slide.
     await driver.waitUntil(async () => (await this.getVisibleSlideTitle()) !== before, {
       timeoutMsg: `Carousel did not move ${direction} from "${before}"`,
     });
   }
 
-  /** Swipes up the page until the hidden logo and the text below it are visible. */
   async scrollToHiddenLogo(): Promise<void> {
     await this.hiddenMessage.scrollIntoView({
       direction: 'up',

@@ -8,6 +8,7 @@
     "node": ">=22.22.2"
   },
   "scripts": {
+    "doctor": "node scripts/doctor.mjs",
     "app:download": "node scripts/download-app.mjs",
     "appium:doctor": "appium driver doctor uiautomator2",
     "test:android": "wdio run config/wdio.android.conf.ts",
@@ -15,6 +16,9 @@
     "sauce:upload": "node scripts/sauce-upload-app.mjs",
     "test:sauce:android": "wdio run config/wdio.sauce.android.conf.ts",
     "test:sauce:ios": "wdio run config/wdio.sauce.ios.conf.ts",
+    "browserstack:upload": "node scripts/browserstack-upload-app.mjs",
+    "test:browserstack:android": "wdio run config/wdio.browserstack.android.conf.ts",
+    "test:browserstack:ios": "wdio run config/wdio.browserstack.ios.conf.ts",
     "test:api": "playwright test",
     "test:api:report": "playwright show-report reports/api/html",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tests/api/tsconfig.json",

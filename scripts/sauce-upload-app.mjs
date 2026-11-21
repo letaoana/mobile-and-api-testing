@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 /**
- * Uploads the demo app builds from ./apps to Sauce Labs App Storage, where the Sauce
- * configs reference them as `storage:filename=<name>`. A file that is already stored
- * with the same checksum is not uploaded again (Sauce Labs limits uploads per 15 minutes).
+ * Uploads app builds to Sauce Labs App Storage. Files already stored with the same checksum
+ * are skipped, as Sauce Labs allows only a few uploads per 15 minutes.
  *
  * Usage:
  *   npm run sauce:upload                  # Android APK + iOS simulator build
  *   npm run sauce:upload -- android       # Android only
  *   npm run sauce:upload -- ./apps/my.ipa # any file
- *
- * Needs SAUCE_LABS_USERNAME / SAUCE_LABS_ACCESS_KEY (or SAUCE_USERNAME / SAUCE_ACCESS_KEY)
- * and optionally SAUCE_REGION (default eu-central-1).
  */
 import { createHash } from 'node:crypto';
 import { createReadStream, existsSync, openAsBlob, statSync } from 'node:fs';

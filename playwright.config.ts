@@ -11,10 +11,7 @@ const isCI = Boolean(process.env.CI);
 // own, so pass them through for runs behind a corporate proxy.
 const proxyServer = process.env.HTTPS_PROXY || process.env.https_proxy;
 
-/**
- * API test configuration. Only Playwright's request context is used, so no
- * browser needs to be installed to run these tests.
- */
+// Only Playwright's request context is used, so no browser is needed.
 export default defineConfig({
   testDir: './tests/api/specs',
   fullyParallel: true,

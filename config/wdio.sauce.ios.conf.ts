@@ -2,11 +2,8 @@ import { envFlag, envOr } from './env.ts';
 import { sauceConfig, sauceOptions } from './wdio.sauce.shared.conf.ts';
 
 /**
- * iOS on Sauce Labs.
- *
- * The published demo app is a simulator build, so the default target is a Sauce Labs iOS
- * simulator. Real iPhones need a device build: upload a signed .ipa, then run with
- * SAUCE_IOS_REAL_DEVICE=true SAUCE_IOS_APP=<uploaded .ipa name> (Sauce re-signs it).
+ * The published demo app is a simulator build, so iOS defaults to a Sauce Labs simulator.
+ * Real iPhones need an uploaded, signed .ipa: SAUCE_IOS_REAL_DEVICE=true SAUCE_IOS_APP=<name>.
  */
 const realDevice = envFlag('SAUCE_IOS_REAL_DEVICE');
 
@@ -16,11 +13,8 @@ export const config: WebdriverIO.Config = {
     {
       platformName: 'iOS',
       'appium:automationName': 'XCUITest',
-      'appium:deviceName': realDevice
-        ? envOr('SAUCE_IOS_DEVICE', 'iPhone.*')
-        : envOr('SAUCE_IOS_DEVICE', 'iPhone Simulator'),
-      // Sauce Labs simulators pair each iOS version with specific Appium versions
-      // (see scripts/sauce-list-platforms.mjs); iOS 26.5 runs on Appium 3.3.0.
+      'appium:deviceName': envOr('SAUCE_IOS_DEVICE', realDevice ? 'iPhone.*' : 'iPhone Simulator'),
+      // Sauce Labs simulators accept only the Appium version paired with each iOS version.
       'appium:platformVersion': envOr('SAUCE_IOS_VERSION', realDevice ? '18' : '26.5'),
       'appium:app': `storage:filename=${envOr(
         'SAUCE_IOS_APP',

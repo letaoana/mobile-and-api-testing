@@ -1,22 +1,11 @@
-/**
- * Cross-platform selector builders.
- *
- * The demo app exposes `testID`s through `accessibilityLabel` on Android and
- * `testID` on iOS, so `~id` (accessibility id) resolves on both platforms.
- * Visible text needs a platform-specific strategy.
- */
-
-/** Accessibility id selector, shared by Android and iOS. */
+// The app exposes its test ids as accessibility ids on both Android and iOS.
 export const byA11yId = (id: string): string => `~${id}`;
 
 const escapeQuotes = (value: string): string => value.replace(/"/g, '\\"');
 
 /**
- * Element whose visible text equals `text`.
- *
- * iOS: React Native exposes a text node as two identical StaticText elements, and
- * containers repeat their children's text in their own label. WebdriverIO requires a
- * selector to resolve to exactly one element, so take the first matching StaticText.
+ * On iOS a React Native text appears as two identical StaticText elements, and selectors
+ * must match exactly one element, so the first match is taken.
  */
 export const byText = (text: string): string =>
   driver.isAndroid

@@ -24,7 +24,6 @@ export const test = base.extend<BookerFixtures>({
     const bookingIds: number[] = [];
     await use((bookingId) => bookingIds.push(bookingId));
 
-    // Keep the shared public API tidy: remove everything this test created.
     if (bookingIds.length === 0) {
       return;
     }

@@ -13,7 +13,6 @@ export const LOGIN_ERRORS = {
   passwordMismatch: 'Please enter the same password',
 } as const;
 
-/** Login / Sign up screen. Both forms share the same email and password inputs. */
 class LoginScreen extends BaseScreen {
   constructor() {
     super(byA11yId('Login-screen'));
@@ -60,16 +59,13 @@ class LoginScreen extends BaseScreen {
     await this.submit(this.signUpButton);
   }
 
-  /** Returns the validation error element for the given message. */
   validationError(message: string) {
     return $(byText(message));
   }
 
   /**
-   * iOS offers a "Use Strong Password?" AutoFill sheet when a password field gets focus,
-   * which can swallow the typed characters, and simulators differ in how typing reaches a
-   * secure field. Type normally first; if the field does not hold the full password,
-   * close the sheet and type key by key into the focused field. Each attempt is verified.
+   * iOS can show a "Use Strong Password?" sheet that swallows typing into secure fields, and
+   * simulators differ in how keystrokes arrive, so each attempt is verified before moving on.
    */
   private async typePassword(input: ChainablePromiseElement, value: string): Promise<void> {
     if (driver.isAndroid) {
@@ -83,7 +79,7 @@ class LoginScreen extends BaseScreen {
         await this.tap(input);
         await this.closeStrongPasswordSheetIfShown();
         await input.clearValue();
-        // Type into the focused field without tapping it again (which would reopen the sheet).
+        // Typing without tapping the field again avoids reopening the sheet.
         await driver.execute('mobile: keys', { keys: [...value] });
       }
       await this.closeStrongPasswordSheetIfShown();
@@ -94,12 +90,11 @@ class LoginScreen extends BaseScreen {
     throw new Error(`Could not type the password into ${await input.selector}`);
   }
 
-  /** iOS shows a secure field's content as one bullet per character. */
+  /** iOS shows a secure field's value as one bullet per character. */
   private async holdsPassword(input: ChainablePromiseElement, value: string): Promise<boolean> {
     return ((await input.getAttribute('value')) ?? '') === '\u2022'.repeat(value.length);
   }
 
-  /** Closing the suggestion on the repeat field can clear the first field on iOS. */
   private async retypeIfCleared(input: ChainablePromiseElement, value: string): Promise<void> {
     if (driver.isIOS && !(await this.holdsPassword(input, value))) {
       await this.typePassword(input, value);

@@ -5,7 +5,6 @@ export interface Credentials {
   password: string;
 }
 
-/** Thin wrapper around the `/auth` endpoint. */
 export class AuthClient {
   constructor(private readonly request: APIRequestContext) {}
 

@@ -7,7 +7,6 @@ const REPORTS_DIR = join(process.cwd(), 'reports', 'mobile');
 const ARTIFACTS_DIR = join(REPORTS_DIR, 'artifacts');
 const recordEveryTest = envFlag('RECORD_VIDEO');
 
-/** Turns a test title into a safe file name. */
 export const toFileName = (title: string): string =>
   title
     .toLowerCase()
@@ -25,10 +24,6 @@ export async function saveFailureEvidence(name: string): Promise<void> {
     .catch((error: Error) => console.warn(`Page source failed: ${error.message}`));
 }
 
-/**
- * Configuration shared by every platform. Platform files only add capabilities
- * and anything that is genuinely platform specific.
- */
 export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
   runner: 'local',
   tsConfigPath: './tsconfig.json',
@@ -56,7 +51,7 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
     [
       'appium',
       {
-        // Uses the Appium server and drivers installed in this project (see package.json).
+        // Appium and its drivers are project dependencies.
         command: 'appium',
         logPath: REPORTS_DIR,
         args: { relaxedSecurity: false, logTimestamp: true },
@@ -94,11 +89,7 @@ export const sharedConfig: Omit<WebdriverIO.Config, 'capabilities'> = {
     }
   },
 
-  /**
-   * Keeps evidence for every failure (screenshot + screen recording) and, when
-   * RECORD_VIDEO=true, a recording of passing tests as well. The screenshot is
-   * taken first so it survives even if the recording cannot be retrieved.
-   */
+  /** The screenshot is taken first so it survives a recording that cannot be retrieved. */
   async afterTest(test, _context, { passed }) {
     const name = `${toFileName(test.parent)}--${toFileName(test.title)}`;
 

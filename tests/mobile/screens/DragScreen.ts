@@ -4,7 +4,6 @@ import BaseScreen from './BaseScreen.ts';
 export const PUZZLE_PIECES = ['l1', 'c1', 'r1', 'l2', 'c2', 'r2', 'l3', 'c3', 'r3'] as const;
 export type PuzzlePiece = (typeof PUZZLE_PIECES)[number];
 
-/** Drag and drop puzzle: nine pieces that each belong to one drop zone. */
 class DragScreen extends BaseScreen {
   constructor() {
     super(byA11yId('Drag-drop-screen'));
