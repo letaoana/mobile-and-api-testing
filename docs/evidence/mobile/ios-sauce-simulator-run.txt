@@ -1,6 +1,6 @@
 Mobile tests - Sauce Labs (iOS) | GitHub Actions run 44941171215 | Sauce Labs iPhone Simulator, iOS 26.5, Appium 3.3.0, eu-central-1
 https://github.com/letaoana/mobile-and-api-testing/actions/runs/44941171215
-9/10 passed. The Forms dropdown does not open on iOS (see README, Known app behaviour and limitations).
+9/10 passed. The Forms dropdown failed; this run was recorded before the iOS dropdown fix (see README, Results and known limitations).
 
 > wdio run config/wdio.sauce.ios.conf.ts
 

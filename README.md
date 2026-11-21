@@ -1,341 +1,120 @@
 # Mobile & API Test Automation
 
-TypeScript test automation for two targets:
+TypeScript test automation for the
+[WebdriverIO Native Demo App](https://github.com/webdriverio/native-demo-app) (WebdriverIO 10 +
+Appium 4, Mocha) and the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html)
+(Playwright `APIRequestContext` + Zod). Android and iOS share the same specs and screen objects; only
+the capabilities differ.
 
-| Part       | Target                                                                        | Stack                                                     |
-| ---------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
-| 1 – Mobile | [WebdriverIO Native Demo App](https://github.com/webdriverio/native-demo-app) | WebdriverIO 10, Appium 4 (UiAutomator2 / XCUITest), Mocha |
-| 2 – API    | [Restful Booker](https://restful-booker.herokuapp.com/apidoc/index.html)      | Playwright Test (`APIRequestContext`), Zod                |
+## Quick start
 
-Android is the primary platform (physical device). iOS is supported from the same specs and screen
-objects (bonus): only the capabilities differ.
-
----
-
-## Contents
-
-- [Project structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Part 1 – Mobile tests](#part-1--mobile-tests)
-- [Part 2 – API tests](#part-2--api-tests)
-- [Test design and best practices](#test-design-and-best-practices)
-- [Continuous integration](#continuous-integration)
-- [Test execution evidence](#test-execution-evidence)
-- [Known app behaviour and limitations](#known-app-behaviour-and-limitations)
-
----
-
-## Project structure
-
-```
-.
-├── config/
-│   ├── env.ts                    # Loads optional .env and reads variables
-│   ├── wdio.shared.conf.ts       # Runner, Appium service, reporters, failure evidence
-│   ├── wdio.android.conf.ts      # Android capabilities (UiAutomator2)
-│   ├── wdio.ios.conf.ts          # iOS capabilities (XCUITest, simulator or real device)
-│   └── wdio.sauce.*.conf.ts      # Sauce Labs: shared settings, Android and iOS capabilities
-├── tests/
-│   ├── mobile/
-│   │   ├── specs/                # One spec file per feature
-│   │   ├── screens/              # Screen objects (Page Object Model)
-│   │   │   └── components/       # Shared UI: tab bar, native alert
-│   │   ├── helpers/              # Selectors, app relaunch, keyboard, viewport checks
-│   │   └── data/                 # Test data builders
-│   └── api/
-│       ├── specs/                # auth.spec.ts, booking.spec.ts
-│       ├── clients/              # Endpoint clients (AuthClient, BookingClient)
-│       ├── fixtures/             # Playwright fixtures (clients + automatic clean-up)
-│       ├── schemas/              # Zod response contracts
-│       └── data/                 # Booking factory, credentials
-├── scripts/
-│   ├── download-app.mjs          # Downloads the demo app builds into ./apps
-│   ├── sauce-upload-app.mjs      # Uploads the app builds to Sauce Labs App Storage
-│   ├── sauce-list-platforms.mjs  # Lists the devices and versions a Sauce Labs account can use
-│   └── summarise-page-source.mjs # Prints the UI hierarchy captured for failed tests (CI)
-├── playwright.config.ts          # API test configuration
-├── docs/evidence/                # Test execution evidence
-├── .github/workflows/            # CI: API, Android emulator, iOS simulator
-└── .env.example                  # Every supported environment variable
-```
-
----
-
-## Prerequisites
-
-| Tool           | Version                                    | Needed for       |
-| -------------- | ------------------------------------------ | ---------------- |
-| Node.js        | 22.22.2+ (see `.nvmrc`)                    | everything       |
-| Java JDK       | 17+ (`JAVA_HOME` set)                      | Android          |
-| Android SDK    | platform-tools (`adb`), `ANDROID_HOME` set | Android          |
-| Android device | Android 13+, USB debugging on              | Android          |
-| Xcode          | 16+ with an iOS 18 simulator               | iOS (macOS only) |
-
-Appium and its drivers are **project dependencies**, so no global Appium install is required. The
-WebdriverIO Appium service starts and stops the server automatically.
-
-### Preparing an Android physical device
-
-1. Enable **Developer options** (tap _Build number_ seven times) and turn on **USB debugging**.
-   On Xiaomi/Oppo devices also enable **USB debugging (Security settings)** / **Install via USB**.
-2. Connect the device and accept the RSA prompt.
-3. Check that it is listed:
-
-   ```bash
-   adb devices
-   # List of devices attached
-   # R58N12ABCDE    device
-   ```
-
-4. Optional: run `npm run appium:doctor` to confirm the Android toolchain is set up correctly.
-
----
-
-## Installation
+Prerequisites: Node.js 22.22.2+ (`.nvmrc`). For Android: JDK 17+, Android SDK platform-tools with
+`ANDROID_HOME` set, and a device with USB debugging on (`adb devices` lists it). For iOS: macOS with
+Xcode 16+. Appium and its drivers are project dependencies and start automatically.
 
 ```bash
-git clone https://github.com/letaoana/mobile-and-api-testing.git
-cd mobile-and-api-testing
 npm ci
+npm run app:download          # demo app builds into ./apps (add `-- android` for Android only)
 
-# Download the demo app (v2.2.0) into ./apps
-npm run app:download            # Android APK + iOS simulator build
-npm run app:download -- android # Android only
+npm run test:api              # API tests (no browser needed); report: npm run test:api:report
+npm run test:android          # connected Android device or emulator
+npm run test:ios              # iOS simulator
 ```
 
-Optional: copy `.env.example` to `.env` to set a device UDID, a different app path, and so on. Every
-variable has a sensible default, so the file is not required.
+Everything is configured through environment variables with sensible defaults; copy `.env.example` to
+`.env` to override them (device UDID, app path, platform version, Sauce Labs settings, API host).
 
----
-
-## Part 1 – Mobile tests
-
-### Running
+**Useful variations**
 
 ```bash
-# Android: the only connected device / running emulator is used
-npm run test:android
-
-# Android: a specific device when several are connected
-ANDROID_UDID=R58N12ABCDE npm run test:android
-
-# iOS simulator (macOS)
-npm run test:ios
-IOS_DEVICE_NAME="iPhone 16 Pro" IOS_PLATFORM_VERSION=18.5 npm run test:ios
-
-# One suite or one spec
-npm run test:android -- --suite auth        # auth | forms | gestures
+ANDROID_UDID=R58N12ABCDE npm run test:android                 # pick a device
+npm run test:android -- --suite auth                          # suites: auth | forms | gestures
 npm run test:android -- --spec tests/mobile/specs/swipe.spec.ts
-
-# Keep a screen recording of every test, not only failures
-RECORD_VIDEO=true npm run test:android
+RECORD_VIDEO=true npm run test:android                        # keep a video of every test
 ```
 
-**iOS on a physical iPhone.** The published iOS build is a simulator build, and Apple does not allow it
-on a real device. To run on an iPhone, build and sign the app from the
-[demo app source](https://github.com/webdriverio/native-demo-app), then:
+**Sauce Labs real devices** (credentials: `SAUCE_LABS_USERNAME`, `SAUCE_LABS_ACCESS_KEY`):
 
 ```bash
-IOS_UDID=<device udid> IOS_APP_PATH=./apps/wdiodemoapp.ipa \
-IOS_XCODE_ORG_ID=<team id> npm run test:ios
+npm run sauce:upload          # uploads ./apps to Sauce Labs storage; skips builds already stored
+npm run test:sauce:android    # any available real Android device (SAUCE_ANDROID_DEVICE to pin one)
+npm run test:sauce:ios        # Sauce Labs iOS simulator
+node scripts/sauce-list-platforms.mjs   # devices and versions the account can use
 ```
 
-Setting `IOS_UDID` switches the config to real-device capabilities (`xcodeOrgId`, `xcodeSigningId`,
-`updatedWDABundleId`).
+**Physical iPhone:** the published iOS build only runs on simulators. Build and sign the app from its
+source, then run with `IOS_UDID`, `IOS_APP_PATH` (the `.ipa`) and `IOS_XCODE_ORG_ID` set.
 
-### Running on Sauce Labs real devices
+## Scenarios
 
-The same specs run on [Sauce Labs](https://saucelabs.com) through `@wdio/sauce-service`. Android
-runs on real devices. The published iOS build is a simulator build, so iOS runs on Sauce simulators
-unless a signed `.ipa` is provided (Sauce re-signs it for its real iPhones).
+| Area   | Spec              | What is verified                                                                                                     |
+| ------ | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Mobile | `signup.spec.ts`  | A new user signs up and the success alert appears; mismatched passwords show an error                                |
+| Mobile | `login.spec.ts`   | Valid credentials log in; a wrong password and an invalid email show their errors and no success alert               |
+| Mobile | `forms.spec.ts`   | Text is echoed, the switch toggles, a dropdown option is selected, _Active_ shows its alert and the values persist   |
+| Mobile | `swipe.spec.ts`   | Swipes move the carousel to the next/previous slide; scrolling reveals the hidden logo and text                      |
+| Mobile | `drag.spec.ts`    | **Bonus:** all nine puzzle pieces are dropped in place, the success screen appears and _Retry_ resets the puzzle     |
+| API    | `auth.spec.ts`    | `POST /auth` returns a token; each call returns a new one; a wrong password returns `Bad credentials` and no token   |
+| API    | `booking.spec.ts` | `POST /booking` returns an id and a booking equal to the request; it can be read back; `additionalneeds` is optional |
 
-```bash
-# 1. Credentials (or put them in .env)
-export SAUCE_LABS_USERNAME=<username>
-export SAUCE_LABS_ACCESS_KEY=<access key>
+**Why drag and drop as the bonus:** it is the only scenario that needs a press-hold-move-release
+gesture between two specific elements, its outcome depends on precision (a piece only lands in its own
+zone) and on state (success after all nine, reset on _Retry_), and the same gesture drives reorderable
+lists and boards in real apps.
 
-# 2. Upload the app builds to Sauce Labs App Storage (once per app version)
-npm run app:download
-npm run sauce:upload                 # or: npm run sauce:upload -- android
+## How the tests are built
 
-# 3. Optional: see which devices and versions the account can use right now
-node scripts/sauce-list-platforms.mjs
+- **Layers.** Mobile: spec → screen object (`tests/mobile/screens`) → helpers. API: spec → fixture →
+  client → `APIRequestContext`. Specs describe behaviour; selectors, URLs and headers live below them.
+- **Cross-platform selectors.** Accessibility ids work on both platforms; the few platform differences
+  (text, alerts, pickers, keyboard) are contained in helpers and screen objects, never in specs.
+- **Reliable waits and isolation.** No fixed sleeps, only condition waits. The app is relaunched before
+  each test, and sign-up data is unique per run.
+- **Strong assertions.** Alerts are checked by title and message, negative tests also prove no success
+  alert appeared, and API responses are validated against strict Zod schemas and compared to the request.
+- **Shared-safe API tests.** Generated bookings are deleted after each test with a fresh token.
+- **Evidence on failure.** Screenshot, page source and screen recording in `reports/mobile/artifacts/`;
+  JUnit and HTML reports under `reports/`.
+- **Quality gates.** Strict TypeScript, ESLint and Prettier: `npm run lint`, `npm run typecheck`,
+  `npm run format:check`.
 
-# 4. Run
-npm run test:sauce:android           # any available Android device
-SAUCE_ANDROID_DEVICE="Samsung Galaxy S2.*" SAUCE_ANDROID_VERSION=14 npm run test:sauce:android
-npm run test:sauce:ios               # iOS simulator on Sauce Labs
+## Project layout
+
 ```
-
-| Variable                | Default        | Purpose                                               |
-| ----------------------- | -------------- | ----------------------------------------------------- |
-| `SAUCE_REGION`          | `eu-central-1` | Sauce Labs data centre (`us-west-1`, `us-east-4`)     |
-| `SAUCE_ANDROID_DEVICE`  | any device     | Device name or regular expression                     |
-| `SAUCE_ANDROID_VERSION` | any version    | Android version                                       |
-| `SAUCE_IOS_REAL_DEVICE` | `false`        | `true` to use real iPhones (needs an uploaded `.ipa`) |
-| `SAUCE_MAX_INSTANCES`   | `2`            | Spec files run in parallel, one device each           |
-
-Each spec file becomes one Sauce Labs job, named after the spec and grouped under one build, with
-video, device logs and the pass/fail status in the Sauce Labs dashboard.
-
-### Scenarios
-
-| #   | Scenario                    | Spec             | What is verified                                                                                                                                                                         |
-| --- | --------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Sign up                     | `signup.spec.ts` | A unique user signs up; the native _"Signed Up! / You successfully signed up!"_ alert is shown. Negative: mismatched passwords show an error.                                            |
-| 2   | Login – happy path          | `login.spec.ts`  | The account created in `before()` logs in; the _"Success / You are logged in!"_ alert is shown.                                                                                          |
-| 3   | Login – invalid credentials | `login.spec.ts`  | A wrong password shows _"Please enter at least 8 characters"_ and no success alert. An invalid email is covered too.                                                                     |
-| 4   | Form interaction            | `forms.spec.ts`  | Text input is echoed back, the switch changes state and label, a dropdown option is selected, _Active_ submits and the alert content is checked; values persist after the dialog closes. |
-| 5   | Swipe / scroll              | `swipe.spec.ts`  | Horizontal swipes move the carousel to the next/previous slide (asserted by which slide is centred on screen); a vertical scroll reveals the hidden logo and _"You found me!!!"_.        |
-| 6   | Bonus: drag and drop        | `drag.spec.ts`   | All nine puzzle pieces are dragged into their drop zones, the _Congratulations_ screen appears, and _Retry_ resets the puzzle.                                                           |
-
-### Why drag and drop as the bonus scenario
-
-- **It covers a different interaction type.** Scenarios 1–5 are taps, typing and swipes. Drag and drop
-  needs a press, hold, move and release on two specific elements, which uses the W3C Actions API in a
-  way no other scenario does.
-- **The outcome depends on precision and state.** A piece is only accepted if it is released inside its
-  own zone, and the success screen appears only after all nine pieces are placed. Gesture timing or
-  coordinate bugs in the framework would show up here first.
-- **It reflects real apps.** Reordering lists, moving cards on boards and sliders all rely on the same
-  gesture. If it is not automated, it ends up being tested by hand.
-- **It checks the reset as well.** _Retry_ must restore the starting state, which catches state that
-  leaks between attempts.
-
-### Reports and failure evidence
-
-| Output                                | Location                         |
-| ------------------------------------- | -------------------------------- |
-| Console (spec reporter)               | terminal                         |
-| JUnit XML                             | `reports/mobile/junit/`          |
-| Appium server log                     | `reports/mobile/wdio-appium.log` |
-| Screenshot + MP4 of every failed test | `reports/mobile/artifacts/`      |
-| WebdriverIO worker logs               | `reports/mobile/logs/`           |
-
----
-
-## Part 2 – API tests
-
-The API tests use Playwright's built-in `APIRequestContext` (the `request` fixture). No browser is
-launched or installed.
-
-```bash
-npm run test:api          # run the tests
-npm run test:api:report   # open the HTML report
+config/            WebdriverIO configs (shared, Android, iOS, Sauce Labs) and env loading
+tests/mobile/      specs/, screens/ (screen objects), helpers/, data/
+tests/api/         specs/, clients/, fixtures/, schemas/ (Zod), data/
+scripts/           app download, Sauce Labs upload and platform listing, CI failure summaries
+docs/evidence/     test execution evidence (logs, reports, screenshots)
+.github/workflows/ CI pipelines
 ```
-
-| Scenario                 | Spec              | What is verified                                                                                                                                                                                                 |
-| ------------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Auth – generate token | `auth.spec.ts`    | `POST /auth` with valid credentials returns `200`, JSON, and a body matching `{ token: <alphanumeric> }`. Also: a new token per request; a wrong password returns `{ reason: "Bad credentials" }` and no token.  |
-| 2. Create booking        | `booking.spec.ts` | `POST /booking` returns `200`, a positive `bookingid`, and a `booking` object **deep-equal** to the request payload. Also: the booking can be read back with `GET /booking/{id}`; `additionalneeds` is optional. |
-
-Configuration (all optional, defaults in brackets):
-
-| Variable          | Purpose                                           |
-| ----------------- | ------------------------------------------------- |
-| `API_BASE_URL`    | API host (`https://restful-booker.herokuapp.com`) |
-| `BOOKER_USERNAME` | Auth user (`admin`, published in the API docs)    |
-| `BOOKER_PASSWORD` | Auth password (`password123`)                     |
-| `HTTPS_PROXY`     | Corporate proxy, passed to Playwright when set    |
-
-Reports: HTML in `reports/api/html`, JUnit in `reports/api/junit/results.xml`.
-
----
-
-## Test design and best practices
-
-**Mobile**
-
-- **Page Object Model.** Specs describe behaviour (`LoginScreen.signUp(user)`), and screen objects own
-  the selectors and interactions. Shared UI (tab bar, native alert) lives in `screens/components`.
-- **One code base, two platforms.** Accessibility ids (`~input-email`) resolve on both platforms because
-  the app maps its test ids to `accessibilityLabel` on Android and `testID` on iOS. Where platforms
-  differ (visible text, alerts, pickers, switch state), the difference is contained in one helper or
-  screen method using `driver.isAndroid`. Specs contain no platform checks.
-- **Selector priority:** accessibility id, then a platform text selector. No XPath and no screen
-  coordinates for finding elements. The only coordinate taps are on iOS, where the keyboard is
-  dismissed by tapping the empty margin beside the form.
-- **No fixed sleeps.** Every wait is on a condition: `waitForDisplayed`, `waitUntil` (carousel settled on
-  a new slide), or the alert appearing and disappearing.
-- **Independent tests.** WebdriverIO starts a fresh session (and app state) per spec file, and each test
-  navigates to its screen in `beforeEach`. Sign-up data is unique per run (`newUser()`).
-- **Meaningful assertions.** Alerts are checked by title _and_ message, negative tests also check that no
-  success alert appeared, and the carousel test checks which slide is centred on screen, not just that an
-  element exists somewhere in the view hierarchy.
-- **Evidence on failure.** A screenshot and screen recording are saved automatically for every failed test.
-- **Configuration through the environment.** UDIDs, app paths and platform versions come from env
-  variables or `.env`, so nothing machine-specific is committed.
-
-**API**
-
-- **Layers:** spec → fixture → client → `APIRequestContext`. Specs never build URLs or headers.
-- **Contract checks with Zod.** Strict schemas fail the test if fields are missing, have the wrong type,
-  or unexpected fields appear.
-- **Exact data checks.** The created booking is compared to the request with `toEqual`, not field by field.
-- **Generated test data.** `buildBooking()` creates unique names and valid future dates; overrides make
-  variations explicit (`buildBooking({ depositpaid: false })`).
-- **Clean-up.** The `cleanUpBooking` fixture deletes every booking a test created, using a fresh token,
-  so the shared public API is not filled with test data. This also proves the token from `/auth` works.
-- **Parallel and isolated.** Tests do not share state and run in parallel.
-
-**General**
-
-- TypeScript in strict mode, ESLint and Prettier (`npm run lint`, `npm run typecheck`, `npm run format:check`).
-- Pinned dependencies through `package-lock.json`; Appium drivers are versioned with the project.
-
----
 
 ## Continuous integration
 
-Each workflow runs only when the files it tests change, and every workflow can also be started by hand
-(_Run workflow_ in the Actions tab).
+| Workflow             | Runs                                    | When                                                                       |
+| -------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
+| `quality.yml`        | Lint, type-check, format check          | Every push and pull request                                                |
+| `api-tests.yml`      | API tests                               | Changes to API tests, Playwright config or dependencies                    |
+| `mobile-android.yml` | Mobile suite on an Android emulator     | Pull requests and `main`, when mobile tests, config or dependencies change |
+| `mobile-ios.yml`     | Mobile suite on an iOS simulator        | As for Android; manual runs can target one spec or test (`spec`, `grep`)   |
+| `mobile-sauce.yml`   | Mobile suite on Sauce Labs real devices | Manually, or when the Sauce Labs setup changes                             |
 
-| Workflow             | Runner                                      | Runs                           | Triggered by                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `quality.yml`        | Ubuntu                                      | Lint, type-check, format check | Every push and pull request (the checks cover all code)                                                                                                                                                  |
-| `api-tests.yml`      | Ubuntu                                      | API tests                      | Changes to `tests/api/**`, `playwright.config.ts`, `package.json`, `package-lock.json` or the workflow                                                                                                   |
-| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android   | Pull requests and pushes to `main` that change `tests/mobile/**`, the shared or Android WebdriverIO config, the app download or page-source scripts, `package.json`, `package-lock.json` or the workflow |
-| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS       | As for Android, with the iOS config. Manual runs can target one spec or test (`spec`, `grep` inputs)                                                                                                     |
-| `mobile-sauce.yml`   | Ubuntu + Sauce Labs                         | Mobile suite on Sauce Labs     | Changes to the Sauce Labs configs, scripts or workflow, and manual runs; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets                                                                  |
+Every workflow can also be started manually and uploads its reports as artifacts. `mobile-sauce.yml`
+needs the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` repository secrets.
 
-Device runs are slow and costly, so the Android and iOS workflows run only for pull requests and on
-`main`, never on every branch push. Each workflow uploads its reports (JUnit, HTML, Appium logs, screen
-recordings) as build artifacts; when a mobile job fails, it also prints a summary of the page source
-captured at the failure. CI uses an emulator and a simulator because hosted runners have no physical
-devices; the same configuration runs locally against a physical device, and `mobile-sauce.yml` runs it
-on Sauce Labs real devices.
+## Results and known limitations
 
----
+Evidence for every run is in [`docs/evidence`](docs/evidence/README.md): API 6/6; Android 10/10 on
+Sauce Labs real devices and on the CI emulator; iOS 9/10 before the dropdown fix below, with the fixed
+test passing on the CI simulator.
 
-## Test execution evidence
-
-See [`docs/evidence`](docs/evidence/README.md) for console logs, reports and screenshots from test
-runs.
-
----
-
-## Known app behaviour and limitations
-
-- **The demo app has no backend.** Login and sign-up are validated in the app only: any well-formed
-  email with a password of 8+ characters logs in, and signed-up accounts are not stored. For the
-  _invalid credentials_ scenario, the "wrong password" is one the app rejects (fewer than 8 characters),
-  which is the only credential error the app can produce. The happy path still signs up first and logs
-  in with the same credentials, so the flow matches the real user journey.
-- **iOS dropdown (Forms, iOS only) – fixed.** On iOS the picker opens only from the chevron icon
-  beside the field (tapping the field itself does nothing), as a bottom sheet with a picker wheel and a
-  _Done_ button. The chevron and _Done_ are React Native touchables that ignore XCUITest's element
-  click, so `FormsScreen` taps them with XCUITest's native tap. The flow is fixed end to end: open from
-  the chevron, select the option on the wheel, close the sheet with _Done_, and assert the selected
-  value. _Forms › fills in every field_ passes on the GitHub Actions iOS 26.2 simulator (see
-  `docs/evidence/mobile/ios-dropdown-fix-run.txt`). The earlier iOS runs in `docs/evidence/` (9/10)
-  were recorded before this fix.
-- **iOS on Sauce Labs simulators.** Sauce Labs iOS simulators are no longer included in the Sauce
-  Labs subscription used for this project, so the dropdown fix could not be re-run there. Before that,
-  iOS 26.5 (Appium 3.3.0, the default) passed 9/10 with only the dropdown failing. On the older iOS 26.1
-  simulator, keystrokes for the first password field land in the confirm field, so sign-up and login
-  fail there.
-- **iOS physical devices** need a signed build of the app (see above); the released iOS build is for
-  simulators only.
-- **Restful Booker is a shared public sandbox.** It is reset periodically and can be slow or briefly
-  unavailable; CI retries a failed API test once.
+- **The demo app has no backend.** Any valid email with an 8+ character password logs in, and accounts
+  are not stored. The "wrong password" case therefore uses a password the app rejects (under 8
+  characters); the happy path signs up first and logs in with the same credentials.
+- **iOS dropdown.** The picker opens only from the chevron icon, as a sheet closed with _Done_; both are
+  tapped with XCUITest's native tap because they ignore element clicks.
+- **iOS on Sauce Labs.** iOS simulators are no longer in the Sauce Labs plan used here; iOS 26.5 passed
+  9/10 there before the dropdown fix. On iOS 26.1, keystrokes for the first password field land in the
+  confirm field.
+- **Restful Booker is a shared public sandbox.** It resets periodically and can be slow; CI retries a
+  failed API test once.
