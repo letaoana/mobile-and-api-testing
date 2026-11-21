@@ -322,6 +322,11 @@ runs.
   this, _Forms › fills in every field_ fails on iOS. It passes on Android, and every other scenario
   passes on both platforms (iOS: 9/10, see `docs/evidence/mobile/ios-simulator-ci-run.txt`). The test
   is left failing rather than skipped, so the gap stays visible.
+- **iOS on Sauce Labs simulators (iOS 26.1).** Android passes 10/10 on Sauce Labs real devices. On
+  Sauce Labs iOS simulators, 5/10 pass (drag and drop, swipe, scroll, switch, password mismatch).
+  Sign-up and login fail because keystrokes for the first password field land in the confirm field on
+  that simulator, and the Forms dropdown has the iOS issue described above. The same sign-up and login
+  tests pass on the GitHub Actions iOS 26.2 simulator.
 - **iOS physical devices** need a signed build of the app (see above); the released iOS build is for
   simulators only.
 - **Restful Booker is a shared public sandbox.** It is reset periodically and can be slow or briefly
