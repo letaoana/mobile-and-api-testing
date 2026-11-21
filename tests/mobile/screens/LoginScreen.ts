@@ -67,33 +67,49 @@ class LoginScreen extends BaseScreen {
 
   /**
    * iOS offers a "Use Strong Password?" AutoFill sheet when a password field gets focus,
-   * which swallows the typed characters. Focus the field, close the sheet if it shows,
-   * then type into the focused field.
+   * which can swallow the typed characters, and simulators differ in how typing reaches a
+   * secure field. Type normally first; if the field does not hold the full password,
+   * close the sheet and type key by key into the focused field. Each attempt is verified.
    */
   private async typePassword(input: ChainablePromiseElement, value: string): Promise<void> {
     if (driver.isAndroid) {
       await this.type(input, value);
       return;
     }
-    await this.tap(input);
-    if (await this.strongPasswordSheet.isDisplayed().catch(() => false)) {
-      await this.tap(this.closeStrongPasswordSheet);
-      await this.strongPasswordSheet.waitForDisplayed({ reverse: true });
-      await this.tap(input);
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      if (attempt === 1) {
+        await this.type(input, value);
+      } else {
+        await this.tap(input);
+        await this.closeStrongPasswordSheetIfShown();
+        await input.clearValue();
+        // Type into the focused field without tapping it again (which would reopen the sheet).
+        await driver.execute('mobile: keys', { keys: [...value] });
+      }
+      await this.closeStrongPasswordSheetIfShown();
+      if (await this.holdsPassword(input, value)) {
+        return;
+      }
     }
-    await input.clearValue();
-    // Type into the focused field without tapping it again (which would reopen the sheet).
-    await driver.execute('mobile: keys', { keys: [...value] });
+    throw new Error(`Could not type the password into ${await input.selector}`);
   }
 
   /** iOS shows a secure field's content as one bullet per character. */
+  private async holdsPassword(input: ChainablePromiseElement, value: string): Promise<boolean> {
+    return ((await input.getAttribute('value')) ?? '') === '\u2022'.repeat(value.length);
+  }
+
+  /** Closing the suggestion on the repeat field can clear the first field on iOS. */
   private async retypeIfCleared(input: ChainablePromiseElement, value: string): Promise<void> {
-    if (driver.isAndroid) {
-      return;
-    }
-    const shown = (await input.getAttribute('value')) ?? '';
-    if (shown !== '\u2022'.repeat(value.length)) {
+    if (driver.isIOS && !(await this.holdsPassword(input, value))) {
       await this.typePassword(input, value);
+    }
+  }
+
+  private async closeStrongPasswordSheetIfShown(): Promise<void> {
+    if (await this.strongPasswordSheet.isDisplayed().catch(() => false)) {
+      await this.tap(this.closeStrongPasswordSheet);
+      await this.strongPasswordSheet.waitForDisplayed({ reverse: true });
     }
   }
 
