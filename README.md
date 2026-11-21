@@ -52,6 +52,7 @@ objects (bonus): only the capabilities differ.
 ├── scripts/
 │   ├── download-app.mjs          # Downloads the demo app builds into ./apps
 │   ├── sauce-upload-app.mjs      # Uploads the app builds to Sauce Labs App Storage
+│   ├── sauce-list-platforms.mjs  # Lists the devices and versions a Sauce Labs account can use
 │   └── summarise-page-source.mjs # Prints the UI hierarchy captured for failed tests (CI)
 ├── playwright.config.ts          # API test configuration
 ├── docs/evidence/                # Test execution evidence
@@ -158,19 +159,22 @@ export SAUCE_LABS_ACCESS_KEY=<access key>
 npm run app:download
 npm run sauce:upload                 # or: npm run sauce:upload -- android
 
-# 3. Run
-npm run test:sauce:android           # any available Google Pixel on Android 14
+# 3. Optional: see which devices and versions the account can use right now
+node scripts/sauce-list-platforms.mjs
+
+# 4. Run
+npm run test:sauce:android           # any available Android device
 SAUCE_ANDROID_DEVICE="Samsung Galaxy S2.*" SAUCE_ANDROID_VERSION=14 npm run test:sauce:android
 npm run test:sauce:ios               # iOS simulator on Sauce Labs
 ```
 
-| Variable                | Default          | Purpose                                               |
-| ----------------------- | ---------------- | ----------------------------------------------------- |
-| `SAUCE_REGION`          | `eu-central-1`   | Sauce Labs data centre (`us-west-1`, `us-east-4`)     |
-| `SAUCE_ANDROID_DEVICE`  | `Google Pixel.*` | Device name or regular expression                     |
-| `SAUCE_ANDROID_VERSION` | `14`             | Android version                                       |
-| `SAUCE_IOS_REAL_DEVICE` | `false`          | `true` to use real iPhones (needs an uploaded `.ipa`) |
-| `SAUCE_MAX_INSTANCES`   | `2`              | Spec files run in parallel, one device each           |
+| Variable                | Default        | Purpose                                               |
+| ----------------------- | -------------- | ----------------------------------------------------- |
+| `SAUCE_REGION`          | `eu-central-1` | Sauce Labs data centre (`us-west-1`, `us-east-4`)     |
+| `SAUCE_ANDROID_DEVICE`  | any device     | Device name or regular expression                     |
+| `SAUCE_ANDROID_VERSION` | any version    | Android version                                       |
+| `SAUCE_IOS_REAL_DEVICE` | `false`        | `true` to use real iPhones (needs an uploaded `.ipa`) |
+| `SAUCE_MAX_INSTANCES`   | `2`            | Spec files run in parallel, one device each           |
 
 Each spec file becomes one Sauce Labs job, named after the spec and grouped under one build, with
 video, device logs and the pass/fail status in the Sauce Labs dashboard.

@@ -19,7 +19,8 @@ export const config: WebdriverIO.Config = {
       'appium:deviceName': realDevice
         ? envOr('SAUCE_IOS_DEVICE', 'iPhone.*')
         : envOr('SAUCE_IOS_DEVICE', 'iPhone Simulator'),
-      'appium:platformVersion': envOr('SAUCE_IOS_VERSION', realDevice ? '18' : '18.0'),
+      // current_major: the newest iOS version Sauce Labs offers.
+      'appium:platformVersion': envOr('SAUCE_IOS_VERSION', 'current_major'),
       'appium:app': `storage:filename=${envOr(
         'SAUCE_IOS_APP',
         realDevice ? 'wdiodemoapp.ipa' : 'ios.simulator.wdio.native.app.zip',

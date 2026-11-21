@@ -28,7 +28,7 @@ export const SAUCE_BUILD = envOr(
 /** Common `sauce:options` for every capability. */
 export const sauceOptions = (platform: 'Android' | 'iOS') => ({
   build: `${SAUCE_BUILD} (${platform})`,
-  appiumVersion: 'latest',
+  appiumVersion: envOr('SAUCE_APPIUM_VERSION', 'latest'),
   // Keep the Sauce job alive while a slow device boots the app.
   idleTimeout: 180,
 });
