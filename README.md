@@ -317,15 +317,19 @@ runs.
   _invalid credentials_ scenario, the "wrong password" is one the app rejects (fewer than 8 characters),
   which is the only credential error the app can produce. The happy path still signs up first and logs
   in with the same credentials, so the flow matches the real user journey.
-- **iOS dropdown (Forms, iOS only).** On the iOS 26 simulator the dropdown's picker does not open from
-  automation: an element click, a touch action and XCUITest's native tap all leave it closed. Because of
-  this, _Forms › fills in every field_ fails on iOS. It passes on Android, and every other scenario
-  passes on both platforms (iOS: 9/10, see `docs/evidence/mobile/ios-simulator-ci-run.txt`). The test
-  is left failing rather than skipped, so the gap stays visible.
-- **iOS on Sauce Labs simulators.** On iOS 26.5 (Appium 3.3.0, the default) 9/10 pass, the same as
-  on the GitHub Actions iOS 26.2 simulator: only the Forms dropdown fails. On the older iOS 26.1
+- **iOS dropdown (Forms, iOS only) – fixed.** On iOS the picker opens only from the chevron icon
+  beside the field (tapping the field itself does nothing), as a bottom sheet with a picker wheel and a
+  _Done_ button. The chevron and _Done_ are React Native touchables that ignore XCUITest's element
+  click, so `FormsScreen` taps them with XCUITest's native tap. The flow is fixed end to end: open from
+  the chevron, select the option on the wheel, close the sheet with _Done_, and assert the selected
+  value. _Forms › fills in every field_ passes on the GitHub Actions iOS 26.2 simulator (see
+  `docs/evidence/mobile/ios-dropdown-fix-run.txt`). The earlier iOS runs in `docs/evidence/` (9/10)
+  were recorded before this fix.
+- **iOS on Sauce Labs simulators.** Sauce Labs iOS simulators are no longer included in the Sauce
+  Labs subscription used for this project, so the dropdown fix could not be re-run there. Before that,
+  iOS 26.5 (Appium 3.3.0, the default) passed 9/10 with only the dropdown failing. On the older iOS 26.1
   simulator, keystrokes for the first password field land in the confirm field, so sign-up and login
-  fail there as well.
+  fail there.
 - **iOS physical devices** need a signed build of the app (see above); the released iOS build is for
   simulators only.
 - **Restful Booker is a shared public sandbox.** It is reset periodically and can be slow or briefly

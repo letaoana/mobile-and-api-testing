@@ -1,0 +1,18 @@
+Mobile tests - iOS | GitHub Actions run 44946121761 | iPhone simulator, iOS 26.2
+https://github.com/letaoana/mobile-and-api-testing/actions/runs/44946121761
+Targeted run of the fixed iOS dropdown test (spec: tests/mobile/specs/forms.spec.ts, grep: "fills in every field").
+
+Execution of 1 workers started at 2026-11-21T20:28:04.636Z
+[0-0] RUNNING in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+[0-0] PASSED in iOS(26.2) on iOS - file:///Users/runner/work/mobile-and-api-testing/mobile-and-api-testing/tests/mobile/specs/forms.spec.ts
+ "spec" Reporter:
+------------------------------------------------------------------
+[ios.simulator.wdio.native.app.zip iOS #0-0] Running: ios.simulator.wdio.native.app.zip on iOS
+[ios.simulator.wdio.native.app.zip iOS #0-0] Session ID: 3b185174-6759-4505-a37a-d77fa682a52f
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] » tests/mobile/specs/forms.spec.ts
+[ios.simulator.wdio.native.app.zip iOS #0-0] Forms
+[ios.simulator.wdio.native.app.zip iOS #0-0]    ✓ fills in every field, submits the form and shows the result
+[ios.simulator.wdio.native.app.zip iOS #0-0]
+[ios.simulator.wdio.native.app.zip iOS #0-0] 1 passing (1m 5s)
+Spec Files:	 1 passed, 1 total (100% completed) in 00:11:52  

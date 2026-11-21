@@ -16,9 +16,10 @@ HTML and JUnit reports as the `api-report` artifact.
 | File                                                                         | What it shows                                                                                                  |
 | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | [`mobile/android-sauce-real-devices-run.txt`](mobile/android-sauce-real-devices-run.txt) | `npm run test:sauce:android` on **Sauce Labs real Android devices**: 5/5 spec files, 10/10 tests passed, one Sauce Labs job (video, device logs) per spec file |
-| [`mobile/ios-sauce-simulator-run.txt`](mobile/ios-sauce-simulator-run.txt) | `npm run test:sauce:ios` on a **Sauce Labs iPhone simulator (iOS 26.5)**: 9/10 tests passed; only the Forms dropdown fails (known iOS limitation) |
+| [`mobile/ios-dropdown-fix-run.txt`](mobile/ios-dropdown-fix-run.txt) | Targeted iOS run after the dropdown fix (GitHub Actions, iOS 26.2): _Forms › fills in every field_ passed |
+| [`mobile/ios-sauce-simulator-run.txt`](mobile/ios-sauce-simulator-run.txt) | `npm run test:sauce:ios` on a **Sauce Labs iPhone simulator (iOS 26.5)**: 9/10 tests passed; only the Forms dropdown failed (recorded before the dropdown fix) |
 | [`mobile/android-emulator-ci-run.txt`](mobile/android-emulator-ci-run.txt) | Full `npm run test:android` output from CI on an Android 14 emulator: 5/5 spec files, 10/10 tests passed |
-| [`mobile/ios-simulator-ci-run.txt`](mobile/ios-simulator-ci-run.txt) | `npm run test:ios` output from CI on an iPhone 16 simulator (iOS 26.2): 9/10 tests passed; the Forms dropdown does not open on iOS (see README, _Known app behaviour and limitations_) |
+| [`mobile/ios-simulator-ci-run.txt`](mobile/ios-simulator-ci-run.txt) | `npm run test:ios` output from CI on an iPhone 16 simulator (iOS 26.2): 9/10 tests passed; the Forms dropdown failed (recorded before the dropdown fix) |
 
 Every run of the **Mobile tests - Android** and **Mobile tests - iOS** workflows uploads its full
 output as a build artifact (`android-report-api-34`, `ios-report`):
