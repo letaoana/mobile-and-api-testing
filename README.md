@@ -34,7 +34,8 @@ objects (bonus): only the capabilities differ.
 │   ├── env.ts                    # Loads optional .env and reads variables
 │   ├── wdio.shared.conf.ts       # Runner, Appium service, reporters, failure evidence
 │   ├── wdio.android.conf.ts      # Android capabilities (UiAutomator2)
-│   └── wdio.ios.conf.ts          # iOS capabilities (XCUITest, simulator or real device)
+│   ├── wdio.ios.conf.ts          # iOS capabilities (XCUITest, simulator or real device)
+│   └── wdio.sauce.*.conf.ts      # Sauce Labs: shared settings, Android and iOS capabilities
 ├── tests/
 │   ├── mobile/
 │   │   ├── specs/                # One spec file per feature
@@ -50,6 +51,7 @@ objects (bonus): only the capabilities differ.
 │       └── data/                 # Booking factory, credentials
 ├── scripts/
 │   ├── download-app.mjs          # Downloads the demo app builds into ./apps
+│   ├── sauce-upload-app.mjs      # Uploads the app builds to Sauce Labs App Storage
 │   └── summarise-page-source.mjs # Prints the UI hierarchy captured for failed tests (CI)
 ├── playwright.config.ts          # API test configuration
 ├── docs/evidence/                # Test execution evidence
@@ -140,6 +142,38 @@ IOS_XCODE_ORG_ID=<team id> npm run test:ios
 
 Setting `IOS_UDID` switches the config to real-device capabilities (`xcodeOrgId`, `xcodeSigningId`,
 `updatedWDABundleId`).
+
+### Running on Sauce Labs real devices
+
+The same specs run on [Sauce Labs](https://saucelabs.com) through `@wdio/sauce-service`. Android
+runs on real devices. The published iOS build is a simulator build, so iOS runs on Sauce simulators
+unless a signed `.ipa` is provided (Sauce re-signs it for its real iPhones).
+
+```bash
+# 1. Credentials (or put them in .env)
+export SAUCE_LABS_USERNAME=<username>
+export SAUCE_LABS_ACCESS_KEY=<access key>
+
+# 2. Upload the app builds to Sauce Labs App Storage (once per app version)
+npm run app:download
+npm run sauce:upload                 # or: npm run sauce:upload -- android
+
+# 3. Run
+npm run test:sauce:android           # any available Google Pixel on Android 14
+SAUCE_ANDROID_DEVICE="Samsung Galaxy S2.*" SAUCE_ANDROID_VERSION=14 npm run test:sauce:android
+npm run test:sauce:ios               # iOS simulator on Sauce Labs
+```
+
+| Variable                | Default          | Purpose                                               |
+| ----------------------- | ---------------- | ----------------------------------------------------- |
+| `SAUCE_REGION`          | `us-west-1`      | Sauce Labs data centre (`eu-central-1`, `us-east-4`)  |
+| `SAUCE_ANDROID_DEVICE`  | `Google Pixel.*` | Device name or regular expression                     |
+| `SAUCE_ANDROID_VERSION` | `14`             | Android version                                       |
+| `SAUCE_IOS_REAL_DEVICE` | `false`          | `true` to use real iPhones (needs an uploaded `.ipa`) |
+| `SAUCE_MAX_INSTANCES`   | `2`              | Spec files run in parallel, one device each           |
+
+Each spec file becomes one Sauce Labs job, named after the spec and grouped under one build, with
+video, device logs and the pass/fail status in the Sauce Labs dashboard.
 
 ### Scenarios
 
@@ -250,11 +284,12 @@ Reports: HTML in `reports/api/html`, JUnit in `reports/api/junit/results.xml`.
 
 ## Continuous integration
 
-| Workflow             | Runner                                      | Runs                                      |
-| -------------------- | ------------------------------------------- | ----------------------------------------- |
-| `api-tests.yml`      | Ubuntu                                      | Lint, type-check, format check, API tests |
-| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android              |
-| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS                  |
+| Workflow             | Runner                                      | Runs                                                                                                      |
+| -------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `api-tests.yml`      | Ubuntu                                      | Lint, type-check, format check, API tests                                                                 |
+| `mobile-android.yml` | Ubuntu + Android emulator (API 34, Pixel 6) | Full mobile suite on Android                                                                              |
+| `mobile-ios.yml`     | macOS 15 + iOS simulator                    | Full mobile suite on iOS                                                                                  |
+| `mobile-sauce.yml`   | Ubuntu + Sauce Labs real devices            | Mobile suite on Sauce Labs (run manually; needs `SAUCE_USERNAME` / `SAUCE_ACCESS_KEY` repository secrets) |
 
 The mobile workflows run for pull requests, on pushes to `main` and on demand (_Run workflow_ in the
 Actions tab), because emulator and simulator runs are slow. Each workflow uploads its reports (JUnit, HTML, Appium logs, screen recordings) as build artifacts; when a mobile job fails, it also prints a summary of the page source captured at the

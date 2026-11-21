@@ -1,0 +1,71 @@
+name: Mobile tests - Sauce Labs
+
+# Runs the mobile suite on Sauce Labs: Android on real devices, iOS on Sauce simulators
+# (or real iPhones when a signed .ipa is provided). Needs the repository secrets
+# SAUCE_USERNAME and SAUCE_ACCESS_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to run
+        type: choice
+        options: [android, ios, both]
+        default: android
+      android-device:
+        description: Android device name or regex
+        default: 'Google Pixel.*'
+      android-version:
+        description: Android version
+        default: '14'
+
+concurrency:
+  group: sauce-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sauce:
+    name: Sauce Labs (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ inputs.platform == 'both' && fromJSON('["android","ios"]') || fromJSON(format('["{0}"]', inputs.platform)) }}
+    env:
+      SAUCE_LABS_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_LABS_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+      SAUCE_REGION: us-west-1
+      SAUCE_BUILD: '${{ github.workflow }} #${{ github.run_number }}'
+      SAUCE_ANDROID_DEVICE: ${{ inputs.android-device }}
+      SAUCE_ANDROID_VERSION: ${{ inputs.android-version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download the demo app
+        run: npm run app:download -- ${{ matrix.platform }}
+
+      - name: Upload the app to Sauce Labs
+        run: npm run sauce:upload -- ${{ matrix.platform }}
+
+      - name: Run tests on Sauce Labs
+        run: npm run test:sauce:${{ matrix.platform }}
+
+      - name: Summarise failure page sources
+        if: failure()
+        run: node scripts/summarise-page-source.mjs reports/mobile/artifacts
+
+      - name: Upload mobile report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: sauce-${{ matrix.platform }}-report
+          path: reports/mobile
+          retention-days: 14

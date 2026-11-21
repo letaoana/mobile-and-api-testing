@@ -8,14 +8,14 @@ const ARTIFACTS_DIR = join(REPORTS_DIR, 'artifacts');
 const recordEveryTest = envFlag('RECORD_VIDEO');
 
 /** Turns a test title into a safe file name. */
-const toFileName = (title: string): string =>
+export const toFileName = (title: string): string =>
   title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
 /** Saves a screenshot and the UI hierarchy, which shows why a locator did not match. */
-async function saveFailureEvidence(name: string): Promise<void> {
+export async function saveFailureEvidence(name: string): Promise<void> {
   await driver
     .saveScreenshot(join(ARTIFACTS_DIR, `${name}.png`))
     .catch((error: Error) => console.warn(`Screenshot failed: ${error.message}`));
