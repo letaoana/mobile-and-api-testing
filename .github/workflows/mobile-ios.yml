@@ -29,7 +29,7 @@ on:
   workflow_dispatch:
     inputs:
       ios-version:
-        description: iOS simulator version
+        description: iOS simulator version (falls back to the newest on the runner if unavailable)
         default: '26.5'
       spec:
         description: Spec file to run (empty = all specs)
@@ -45,7 +45,8 @@ concurrency:
 jobs:
   ios:
     name: iOS simulator
-    runs-on: macos-15
+    # macos-26 carries the newer Xcode releases needed for recent iOS simulator runtimes.
+    runs-on: macos-26
     timeout-minutes: 75
     env:
       RECORD_VIDEO: 'true'
@@ -83,9 +84,18 @@ jobs:
             xcodebuild -downloadPlatform iOS -buildVersion "$IOS_SIMULATOR_VERSION" || true
           fi
           if ! has_runtime; then
-            echo "::error::iOS $IOS_SIMULATOR_VERSION simulator runtime is not available on this runner."
+            # Fall back to the newest iOS runtime the runner has rather than failing the run.
             xcrun simctl list runtimes
-            exit 1
+            LATEST=$(xcrun simctl list runtimes --json \
+              | jq -r '[.runtimes[] | select(.platform == "iOS" and .isAvailable)]
+                       | sort_by(.version | split(".") | map(tonumber)) | last')
+            if [ "$LATEST" = "null" ]; then
+              echo "::error::No iOS simulator runtime is available on this runner."
+              exit 1
+            fi
+            echo "::warning::iOS $IOS_SIMULATOR_VERSION is not available on this runner; using iOS $(jq -r .version <<<"$LATEST") instead."
+            RUNTIME=$(jq -r .identifier <<<"$LATEST")
+            IOS_SIMULATOR_VERSION=$(jq -r .version <<<"$LATEST")
           fi
 
           NAME=$(xcrun simctl list devices available --json \
