@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import { ensureAndroidDevice } from './android-device.ts';
 import { env, envOr } from './env.ts';
 import { sharedConfig } from './wdio.shared.conf.ts';
 
@@ -25,4 +26,17 @@ export const config: WebdriverIO.Config = {
       'appium:disableWindowAnimation': true,
     },
   ],
+
+  /** Starts an emulator when no device is connected, or stops early if there is none to start. */
+  async onPrepare(config, capabilities) {
+    for (const hook of [sharedConfig.onPrepare ?? []].flat()) {
+      await hook.call(this, config, capabilities);
+    }
+    const startedUdid = await ensureAndroidDevice();
+    if (startedUdid && Array.isArray(capabilities)) {
+      for (const capability of capabilities as WebdriverIO.Capabilities[]) {
+        capability['appium:udid'] ??= startedUdid;
+      }
+    }
+  },
 };

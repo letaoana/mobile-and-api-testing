@@ -26,7 +26,7 @@ npm run doctor                # check prerequisites; lists anything missing and 
 npm run app:download          # demo app builds into ./apps
 
 npm run test:api              # API tests; HTML report: npm run test:api:report
-npm run test:android          # connected Android phone or running emulator
+npm run test:android          # connected phone or emulator; starts an emulator if none is connected
 npm run test:ios              # iOS simulator (macOS only)
 ```
 
@@ -48,6 +48,11 @@ $env:ANDROID_UDID="R58N12ABCDE"; npm run test:android              # Windows Pow
 Properties → Environment Variables_ (or with `setx`), then open a new terminal. Create an emulator in
 Android Studio → Device Manager, or plug in a phone and accept the USB debugging prompt; `adb devices`
 must list it. With nvm-windows, install the version in `.nvmrc` explicitly (`nvm install 22`).
+
+If no phone or emulator is connected, `npm run test:android` starts an installed emulator (the newest
+Android version, or the one named in `ANDROID_AVD`) and waits for it to boot; it stays running for the
+next run. With no emulator installed either, the run stops straight away and says what to set up,
+rather than failing every spec file. `ANDROID_AUTO_EMULATOR=false` turns the start-up off.
 
 **More ways to run**
 

@@ -149,10 +149,27 @@ function checkAndroid() {
       );
     }
     if (!attached.length) {
-      fail(
-        'No Android device or emulator connected',
-        'Connect a phone with USB debugging on, or start an emulator (Android Studio → Device Manager)',
-      );
+      const emulatorPath = sdk
+        ? join(sdk, 'emulator', isWindows() ? 'emulator.exe' : 'emulator')
+        : '';
+      const avds = (run(existsSync(emulatorPath) ? emulatorPath : 'emulator', ['-list-avds']) ?? '')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line && !/^(INFO|WARNING|ERROR)\b/.test(line));
+      const autoStart = !/^(false|0|no)$/i.test(process.env.ANDROID_AUTO_EMULATOR ?? '');
+      if (avds.length && autoStart) {
+        warn(
+          'No Android device or emulator connected',
+          `npm run test:android will start an emulator (${process.env.ANDROID_AVD || avds.join(', ')})`,
+        );
+      } else {
+        fail(
+          'No Android device or emulator connected',
+          avds.length
+            ? 'Connect a phone or start an emulator (ANDROID_AUTO_EMULATOR is off)'
+            : 'Connect a phone with USB debugging on, or create an emulator (Android Studio → Device Manager)',
+        );
+      }
     } else if (ready.length > 1 && !process.env.ANDROID_UDID) {
       warn('Several devices connected', 'Set ANDROID_UDID to choose one');
     }
